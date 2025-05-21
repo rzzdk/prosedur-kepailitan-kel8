@@ -53,24 +53,18 @@
             transform: translateY(-5px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-        .sub-content-section {
-            display: none; /* Initially hidden, JS will manage display for scrollHeight calculation */
-            margin-top: 1rem;
-            padding-left: 1rem;
-            border-left: 3px solid #6366f1;
+
+        /* Revised styles for collapsible content */
+        .sub-content-section,
+        .accordion-content {
             overflow: hidden;
-            transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out, padding 0.5s ease-in-out;
+            transition: max-height 0.4s ease-out, opacity 0.3s ease-out, padding-top 0.4s ease-out, padding-bottom 0.4s ease-out;
             max-height: 0;
             opacity: 0;
-            padding-top: 0;
-            padding-bottom: 0;
-        }
-        .sub-content-section.active {
-            /* display: block;  Let JS handle this for precise timing with scrollHeight */
-            /* max-height: 2000px; /* REMOVED - JS will handle */
-            opacity: 1;
-            padding-top: 1rem;
-            padding-bottom: 1rem;
+            padding-top: 0 !important; /* Ensure JS can override Tailwind if needed for animation */
+            padding-bottom: 0 !important; /* Ensure JS can override Tailwind if needed for animation */
+            visibility: hidden;
+            /* display: none; /* Avoid display:none initially to allow transitions to start */
         }
 
         .accordion-header-button {
@@ -89,24 +83,7 @@
         .accordion-item.active .accordion-icon {
             transform: rotate(180deg);
         }
-        .accordion-content {
-            overflow: hidden;
-            transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out, opacity 0.3s ease-in-out;
-            max-height: 0;
-            padding-top: 0;
-            padding-bottom: 0;
-            opacity: 0;
-            visibility: hidden;
-            display: none; /* Initially hidden, JS will manage display for scrollHeight calculation */
-        }
-        .accordion-item.active .accordion-content {
-            /* max-height: 1500px; /* REMOVED - JS will handle */
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-            opacity: 1;
-            visibility: visible;
-            /* display: block; /* Let JS handle this */
-        }
+
 
         .nav-link:focus-visible,
         .proses-card:focus-visible,
@@ -130,7 +107,7 @@
     <header class="bg-white shadow-md sticky top-0 z-50" role="banner">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <h1 class="text-2xl font-bold text-indigo-600"⚖️ Prosedur Kepailitan</h1>
+                <h1 class="text-2xl font-bold text-indigo-600">⚖️ Prosedur Kepailitan</h1>
                 <nav class="hidden md:flex space-x-1 lg:space-x-2" aria-label="Navigasi Utama">
                     <a class="nav-link" href="#" role="tab" aria-controls="beranda" data-target="beranda">Beranda</a>
                     <a class="nav-link" href="#" role="tab" aria-controls="konsep-dasar" data-target="konsep-dasar">Konsep Dasar</a>
@@ -963,38 +940,20 @@
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
 
+        // --- Fungsi Navigasi ---
         function setActiveSection(targetId, isMobileClick = false) {
             contentSections.forEach(section => {
                 const sectionIsActive = section.id === targetId;
                 section.classList.toggle('active', sectionIsActive);
                 section.setAttribute('aria-hidden', String(!sectionIsActive));
                 section.setAttribute('tabindex', sectionIsActive ? '0' : '-1');
-                if (!sectionIsActive) {
-                    section.querySelectorAll('.sub-content-section.active').forEach(activeSub => {
-                        activeSub.classList.remove('active');
-                        activeSub.setAttribute('aria-hidden', 'true');
-                        activeSub.style.display = 'none'; // Hide it first
-                        activeSub.style.maxHeight = '0';
-                        activeSub.style.opacity = '0';
-                        activeSub.style.paddingTop = '0';
-                        activeSub.style.paddingBottom = '0';
-                    });
-                     section.querySelectorAll('.accordion-item.active').forEach(openAccordion => {
-                        openAccordion.classList.remove('active');
-                        const header = openAccordion.querySelector('.accordion-header-button');
-                        const content = openAccordion.querySelector('.accordion-content');
-                        if(header) header.setAttribute('aria-expanded', 'false');
-                        if(content) {
-                            content.style.display = 'none'; // Hide it first
-                            content.style.maxHeight = '0';
-                            content.style.opacity = '0';
-                            content.style.paddingTop = '0';
-                            content.style.paddingBottom = '0';
-                            content.style.visibility = 'hidden';
-                        }
-                        const icon = header.querySelector('.accordion-icon');
-                        if (icon) icon.style.transform = 'rotate(0deg)';
-                    });
+                if (!sectionIsActive) { // Tutup semua sub-elemen di bagian yang tidak aktif
+                    section.querySelectorAll('.sub-content-section.active').forEach(
+                        sub => closeCollapsible(sub, sub.closest('.proses-card')?.classList.contains('active'))
+                    );
+                    section.querySelectorAll('.accordion-item.active').forEach(
+                        item => closeCollapsible(item.querySelector('.accordion-content'), true, item.querySelector('.accordion-header-button'), item)
+                    );
                 }
             });
 
@@ -1017,24 +976,17 @@
             
             const activeContentSection = document.getElementById(targetId);
             if (activeContentSection) {
-                setTimeout(() => {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }, 50);
+                setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
             }
         }
 
         allNavLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const targetId = link.dataset.target;
-                const isMobile = link.closest('#mobile-menu') !== null;
-                setActiveSection(targetId, isMobile);
+                setActiveSection(link.dataset.target, link.closest('#mobile-menu') !== null);
             });
             link.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    link.click();
-                }
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); link.click(); }
             });
         });
 
@@ -1044,72 +996,86 @@
             mobileMenuButton.setAttribute('aria-expanded', String(!isExpanded));
         });
         
+        // --- Fungsi Umum untuk Buka/Tutup Elemen Kolapsibel ---
+        function openCollapsible(element, headerButton, parentItem) {
+            element.style.visibility = 'visible';
+            // Atur padding kembali ke nilai CSS (Tailwind akan menerapkannya jika ada kelasnya)
+            // Untuk .sub-content-section, padding kiri sudah ada dari CSS, kita hanya perlu atas/bawah
+            const defaultPadding = '1rem'; // Default padding, sesuaikan jika berbeda
+            
+            requestAnimationFrame(() => {
+                element.style.paddingTop = defaultPadding;
+                element.style.paddingBottom = defaultPadding;
+                element.style.opacity = '1';
+                element.style.maxHeight = element.scrollHeight + 'px';
+            });
+
+            if (headerButton) headerButton.setAttribute('aria-expanded', 'true');
+            if (parentItem) parentItem.classList.add('active');
+            else element.classList.add('active'); // Untuk sub-content-section
+        }
+
+        function closeCollapsible(element, shouldRemoveParentActive, headerButton, parentItem) {
+            element.style.opacity = '0';
+            element.style.maxHeight = '0';
+            element.style.paddingTop = '0';
+            element.style.paddingBottom = '0';
+            
+            element.addEventListener('transitionend', function onEnd() {
+                if (element.style.maxHeight === '0px' || element.style.maxHeight === '0') { // Pastikan masih tertutup
+                    element.style.visibility = 'hidden';
+                }
+                element.removeEventListener('transitionend', onEnd);
+            }, { once: true });
+
+            // Fallback jika transisi tidak ada atau tidak terpicu
+            setTimeout(() => {
+                 if (element.style.maxHeight === '0px' || element.style.maxHeight === '0') {
+                    element.style.visibility = 'hidden';
+                }
+            }, 450); // Sedikit lebih lama dari durasi transisi
+
+            if (headerButton) headerButton.setAttribute('aria-expanded', 'false');
+            if (parentItem && shouldRemoveParentActive) parentItem.classList.remove('active');
+            else if (shouldRemoveParentActive) element.classList.remove('active');
+        }
+
+        // --- Interaktivitas "Alur Proses" ---
         const prosesCards = document.querySelectorAll('.proses-card');
         const alurProsesSubSections = document.querySelectorAll('#alur-proses .sub-content-section');
 
         prosesCards.forEach(card => {
-            card.addEventListener('click', () => toggleAlurProsesSubSection(card.dataset.subtarget));
-            card.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    toggleAlurProsesSubSection(card.dataset.subtarget);
-                }
-            });
+            const subTargetId = card.dataset.subtarget;
+            const targetSubSection = document.getElementById(subTargetId);
+
+            if (targetSubSection) {
+                card.addEventListener('click', () => {
+                    const isCurrentlyActive = targetSubSection.classList.contains('active');
+                    // Tutup semua sub-bagian lain dulu
+                    alurProsesSubSections.forEach(sub => {
+                        if (sub.id !== subTargetId && sub.classList.contains('active')) {
+                            closeCollapsible(sub, true); // true untuk menghapus kelas 'active' dari sub-bagian itu sendiri
+                        }
+                    });
+                    // Toggle sub-bagian yang diklik
+                    if (isCurrentlyActive) {
+                        closeCollapsible(targetSubSection, true);
+                    } else {
+                        openCollapsible(targetSubSection);
+                    }
+                });
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
+                });
+            }
         });
 
-        function toggleAlurProsesSubSection(subTargetId) {
-            const targetSubSection = document.getElementById(subTargetId);
-            if (!targetSubSection) return;
-            const currentlyActive = targetSubSection.classList.contains('active');
-
-            alurProsesSubSections.forEach(subSection => {
-                if (subSection.id !== subTargetId) {
-                    subSection.classList.remove('active');
-                    subSection.setAttribute('aria-hidden', 'true');
-                    subSection.style.maxHeight = '0';
-                    subSection.style.opacity = '0';
-                    subSection.style.paddingTop = '0';
-                    subSection.style.paddingBottom = '0';
-                    // Ensure display is none after transition or immediately if no transition
-                     subSection.addEventListener('transitionend', () => {
-                        if(!subSection.classList.contains('active')) subSection.style.display = 'none';
-                    }, {once: true});
-                    if (getComputedStyle(subSection).transitionDuration === '0s') {
-                         if(!subSection.classList.contains('active')) subSection.style.display = 'none';
-                    }
-                }
-            });
-
-            targetSubSection.classList.toggle('active', !currentlyActive);
-            targetSubSection.setAttribute('aria-hidden', String(currentlyActive));
-
-            if (!currentlyActive) { // Expanding
-                targetSubSection.style.display = 'block'; // Make it visible to measure scrollHeight
-                requestAnimationFrame(() => { // Wait for next frame to ensure dimensions are calculated
-                    targetSubSection.style.maxHeight = targetSubSection.scrollHeight + "px";
-                    targetSubSection.style.opacity = '1';
-                    targetSubSection.style.paddingTop = '1rem';
-                    targetSubSection.style.paddingBottom = '1rem';
-                });
-            } else { // Collapsing
-                targetSubSection.style.maxHeight = '0';
-                targetSubSection.style.opacity = '0';
-                targetSubSection.style.paddingTop = '0';
-                targetSubSection.style.paddingBottom = '0';
-                targetSubSection.addEventListener('transitionend', () => {
-                    if(!targetSubSection.classList.contains('active')) targetSubSection.style.display = 'none';
-                }, {once: true});
-                 if (getComputedStyle(targetSubSection).transitionDuration === '0s') {
-                     if(!targetSubSection.classList.contains('active')) targetSubSection.style.display = 'none';
-                }
-            }
-        }
-
+        // --- Interaktivitas Accordion ---
         const accordionItems = document.querySelectorAll('.accordion-item');
         accordionItems.forEach((item, index) => {
             const headerButton = item.querySelector('.accordion-header-button');
             const content = item.querySelector('.accordion-content');
-            const icon = headerButton.querySelector('.accordion-icon');
+            
             const contentId = `accordion-content-${item.closest('section').id}-${index + 1}`;
             const headerId = `accordion-header-${item.closest('section').id}-${index + 1}`;
             
@@ -1120,61 +1086,30 @@
 
             headerButton.addEventListener('click', () => {
                 const isActive = item.classList.contains('active');
-                item.classList.toggle('active');
-                headerButton.setAttribute('aria-expanded', String(!isActive));
-
-                if (!isActive) { // Expanding
-                    content.style.display = 'block'; // Make it visible to measure scrollHeight
-                    content.style.visibility = 'visible';
-                    requestAnimationFrame(() => { // Wait for next frame
-                        content.style.maxHeight = content.scrollHeight + "px";
-                        content.style.paddingTop = ''; 
-                        content.style.paddingBottom = ''; 
-                        content.style.opacity = '1';
-                    });
-                    if (icon) icon.style.transform = 'rotate(180deg)';
-                } else { // Collapsing
-                    content.style.maxHeight = '0';
-                    content.style.opacity = '0';
-                    content.style.paddingTop = '0';
-                    content.style.paddingBottom = '0';
-                    content.addEventListener('transitionend', function handler() {
-                        if (!item.classList.contains('active')) {
-                            content.style.visibility = 'hidden';
-                            content.style.display = 'none';
-                        }
-                        // content.removeEventListener('transitionend', handler); // {once: true} handles this
-                    }, { once: true });
-                    if (getComputedStyle(content).transitionDuration === '0s') { // Handle no transition case
-                         if (!item.classList.contains('active')) {
-                            content.style.visibility = 'hidden';
-                            content.style.display = 'none';
-                        }
-                    }
-                    if (icon) icon.style.transform = 'rotate(0deg)';
+                if (isActive) {
+                    closeCollapsible(content, true, headerButton, item);
+                } else {
+                    // Opsi: Tutup accordion lain dalam grup yang sama
+                    // const parentGroup = item.parentElement;
+                    // if (parentGroup) {
+                    //     parentGroup.querySelectorAll('.accordion-item.active').forEach(openItem => {
+                    //         if (openItem !== item) {
+                    //             closeCollapsible(openItem.querySelector('.accordion-content'), true, openItem.querySelector('.accordion-header-button'), openItem);
+                    //         }
+                    //     });
+                    // }
+                    openCollapsible(content, headerButton, item);
                 }
             });
         });
 
+        // Inisialisasi
         const initialTargetId = 'beranda';
-        const firstNavLinkDesktop = document.querySelector(`.nav-link[data-target="${initialTargetId}"]:not(#mobile-menu .nav-link)`);
-        const firstNavLinkMobile = document.querySelector(`#mobile-menu .nav-link[data-target="${initialTargetId}"]`);
-        
-        if (firstNavLinkDesktop) {
-            firstNavLinkDesktop.classList.add('active');
-            firstNavLinkDesktop.setAttribute('aria-selected', 'true');
-        }
-        if (firstNavLinkMobile) {
-            firstNavLinkMobile.classList.add('active-mobile');
-            firstNavLinkMobile.setAttribute('aria-selected', 'true');
-        }
-        
-        const initialSection = document.getElementById(initialTargetId);
-        if (initialSection) {
-            initialSection.classList.add('active');
-            initialSection.setAttribute('aria-hidden', 'false');
-            initialSection.setAttribute('tabindex', '0');
-        }
+        setActiveSection(initialTargetId);
+        document.getElementById(initialTargetId)?.classList.add('active');
+        document.getElementById(initialTargetId)?.setAttribute('aria-hidden', 'false');
+        document.getElementById(initialTargetId)?.setAttribute('tabindex', '0');
+
     });
     </script>
 
