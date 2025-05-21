@@ -3,173 +3,275 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prosedur Kepailitan Interaktif</title>
+    <title>Prosedur Kepailitan Interaktif - Versi Ditingkatkan</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Visualization & Content Choices:
-        - Alur Proses Utama: Interactive HTML/CSS cards/buttons for stages. Goal: Show process flow. Interaction: Click stages to reveal detailed sub-sections. Justification: Visual and intuitive understanding of sequence. Method: JS for interaction and content display.
-        - Para Pihak Utama: Collapsible sections or distinct content blocks. Goal: Detail roles. Interaction: Click to expand/view. Justification: Organized presentation of multiple roles. Method: JS for accordion/content switching.
-        - Kepailitan vs PKPU: HTML table. Goal: Compare concepts. Interaction: Static, clear display. Justification: Direct comparison of features. Method: HTML, styled with Tailwind.
-        - Tabel Jangka Waktu & Penggolongan Kreditor: HTML tables. Goal: Present key data clearly. Justification: Effective for structured data. Method: HTML, styled with Tailwind.
-        - Dasar Hukum & Asas: Expandable HTML lists or formatted text. Goal: Provide legal references. Interaction: Click to expand if needed. Justification: Access to details without clutter. Method: JS for accordion if used, else styled HTML.
-        - Isu Kontemporer: Structured text blocks. Goal: Highlight current debates. Justification: Easy reading of complex issues. Method: HTML.
-        CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .content-section { display: none; }
-        .content-section.active { display: block; }
-        .nav-link { cursor: pointer; }
-        .nav-link.active { font-weight: bold; color: #4f46e5; border-bottom: 2px solid #4f46e5; }
-        .proses-card { cursor: pointer; transition: transform 0.2s; }
-        .proses-card:hover { transform: translateY(-5px); }
-        .sub-content-section { display: none; margin-top: 1rem; padding-left: 1rem; border-left: 2px solid #e5e7eb; }
-        .sub-content-section.active { display: block; }
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth; /* Untuk scroll yang lebih halus saat navigasi */
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out; /* Animasi fade-in sederhana */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Enhanced Nav Link Styling */
+        .nav-link {
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            padding: 0.5rem 0.75rem; /* py-2 px-3 */
+            border-radius: 0.375rem; /* rounded-md */
+        }
+        .nav-link:hover {
+            background-color: #eef2ff; /* indigo-50 */
+            color: #4338ca; /* indigo-700 */
+        }
+        .nav-link.active { /* Untuk desktop */
+            font-weight: 600; /* semibold */
+            color: #4f46e5; /* indigo-600 */
+            background-color: #e0e7ff; /* indigo-100 */
+            border-bottom: 2px solid #4f46e5;
+        }
+        /* Untuk mobile menu, Tailwind classes biasanya cukup */
+        #mobile-menu .nav-link.active {
+             font-weight: 600; /* semibold */
+             color: #4f46e5; /* indigo-600 */
+             background-color: #f3f4f6; /* slate-100 */
+        }
+
+
+        .proses-card {
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .proses-card:hover, .proses-card:focus-visible { /* Tambahkan :focus-visible untuk aksesibilitas keyboard */
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+        }
+        .sub-content-section {
+            display: none;
+            margin-top: 1rem;
+            padding-left: 1rem;
+            border-left: 3px solid #6366f1; /* indigo-500 */
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out, padding 0.5s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        .sub-content-section.active {
+            display: block; /* Diperlukan agar JS bisa mengukur scrollHeight */
+            max-height: 2000px; /* Sesuaikan dengan konten maksimal yang mungkin */
+            opacity: 1;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        /* Enhanced Accordion Styles */
+        .accordion-header-button { /* Mengganti .accordion-header untuk menargetkan button */
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            text-align: left;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .accordion-icon {
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            flex-shrink: 0; /* Mencegah ikon mengecil */
+        }
+        .accordion-item.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+        .accordion-content {
+            overflow: hidden;
+            transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out, opacity 0.3s ease-in-out;
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            opacity: 0;
+            visibility: hidden; /* Sembunyikan dari assistive tech saat tertutup */
+        }
+        .accordion-item.active .accordion-content {
+            max-height: 1500px; /* Sesuaikan dengan konten maksimal */
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            opacity: 1;
+            visibility: visible; /* Tampilkan saat terbuka */
+        }
+
+        /* Accessibility: Focus Styles */
+        .nav-link:focus-visible,
+        .proses-card:focus-visible,
+        .accordion-header-button:focus-visible,
+        #mobile-menu-button:focus-visible {
+            outline: 2px solid #4f46e5; /* indigo-600 */
+            outline-offset: 2px;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5); /* Ring shadow */
+        }
+
         .table-container { max-width: 100%; overflow-x: auto; }
         th, td { padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; text-align: left; }
         th { background-color: #f3f4f6; }
+
+        /* Chart.js container (jika akan digunakan) */
         .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 300px; max-height: 400px; }
         @media (min-width: 768px) { .chart-container { height: 350px; } }
-
-        /* Accordion styles */
-        .accordion-header { cursor: pointer; padding: 0.75rem 1rem; background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.375rem; margin-bottom: 0.25rem; display: flex; justify-content: space-between; align-items: center; }
-        .accordion-content { display: none; padding: 1rem; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 0.375rem 0.375rem; }
-        .accordion-item.active .accordion-content { display: block; }
-        .accordion-item.active .accordion-header .icon::before { content: "-"; }
-        .accordion-header .icon::before { content: "+"; font-weight: bold; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800">
+<body class="bg-slate-100 text-slate-800 antialiased">
 
-    <header class="bg-white shadow-md sticky top-0 z-50">
+    <header class="bg-white shadow-md sticky top-0 z-50" role="banner">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <h1 class="text-2xl font-bold text-indigo-600">⚖️ Prosedur Kepailitan</h1>
-                <nav class="hidden md:flex space-x-4 lg:space-x-6">
-                    <a class="nav-link active" data-target="beranda">Beranda</a>
-                    <a class="nav-link" data-target="konsep-dasar">Konsep Dasar</a>
-                    <a class="nav-link" data-target="alur-proses">Alur Proses</a>
-                    <a class="nav-link" data-target="para-pihak">Para Pihak</a>
-                    <a class="nav-link" data-target="kepailitan-vs-pkpu">Kepailitan vs PKPU</a>
-                    <a class="nav-link" data-target="upaya-hukum">Upaya Hukum</a>
-                    <a class="nav-link" data-target="isu-kontemporer">Isu Kontemporer</a>
+                <nav class="hidden md:flex space-x-1 lg:space-x-2" aria-label="Navigasi Utama">
+                    <a class="nav-link" href="#" role="tab" aria-controls="beranda" data-target="beranda">Beranda</a>
+                    <a class="nav-link" href="#" role="tab" aria-controls="konsep-dasar" data-target="konsep-dasar">Konsep Dasar</a>
+                    <a class="nav-link" href="#" role="tab" aria-controls="alur-proses" data-target="alur-proses">Alur Proses</a>
+                    <a class="nav-link" href="#" role="tab" aria-controls="para-pihak" data-target="para-pihak">Para Pihak</a>
+                    <a class="nav-link" href="#" role="tab" aria-controls="kepailitan-vs-pkpu" data-target="kepailitan-vs-pkpu">Kepailitan vs PKPU</a>
+                    <a class="nav-link" href="#" role="tab" aria-controls="upaya-hukum" data-target="upaya-hukum">Upaya Hukum</a>
+                    <a class="nav-link" href="#" role="tab" aria-controls="isu-kontemporer" data-target="isu-kontemporer">Isu Kontemporer</a>
                 </nav>
-                <button id="mobile-menu-button" class="md:hidden text-slate-600 hover:text-indigo-600">
+                <button id="mobile-menu-button" class="md:hidden text-slate-600 hover:text-indigo-600 p-2 rounded-md" aria-label="Buka menu navigasi" aria-expanded="false" aria-controls="mobile-menu">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                     </svg>
                 </button>
             </div>
         </div>
-        <div id="mobile-menu" class="md:hidden hidden bg-white shadow-lg">
-            <a class="block py-2 px-4 text-sm hover:bg-slate-50 nav-link active" data-target="beranda">Beranda</a>
-            <a class="block py-2 px-4 text-sm hover:bg-slate-50 nav-link" data-target="konsep-dasar">Konsep Dasar</a>
-            <a class="block py-2 px-4 text-sm hover:bg-slate-50 nav-link" data-target="alur-proses">Alur Proses</a>
-            <a class="block py-2 px-4 text-sm hover:bg-slate-50 nav-link" data-target="para-pihak">Para Pihak</a>
-            <a class="block py-2 px-4 text-sm hover:bg-slate-50 nav-link" data-target="kepailitan-vs-pkpu">Kepailitan vs PKPU</a>
-            <a class="block py-2 px-4 text-sm hover:bg-slate-50 nav-link" data-target="upaya-hukum">Upaya Hukum</a>
-            <a class="block py-2 px-4 text-sm hover:bg-slate-50 nav-link" data-target="isu-kontemporer">Isu Kontemporer</a>
+        <div id="mobile-menu" class="md:hidden hidden bg-white shadow-lg" role="navigation" aria-label="Navigasi Seluler">
+            <a class="block py-3 px-4 text-sm hover:bg-slate-100 nav-link" href="#" role="tab" aria-controls="beranda" data-target="beranda">Beranda</a>
+            <a class="block py-3 px-4 text-sm hover:bg-slate-100 nav-link" href="#" role="tab" aria-controls="konsep-dasar" data-target="konsep-dasar">Konsep Dasar</a>
+            <a class="block py-3 px-4 text-sm hover:bg-slate-100 nav-link" href="#" role="tab" aria-controls="alur-proses" data-target="alur-proses">Alur Proses</a>
+            <a class="block py-3 px-4 text-sm hover:bg-slate-100 nav-link" href="#" role="tab" aria-controls="para-pihak" data-target="para-pihak">Para Pihak</a>
+            <a class="block py-3 px-4 text-sm hover:bg-slate-100 nav-link" href="#" role="tab" aria-controls="kepailitan-vs-pkpu" data-target="kepailitan-vs-pkpu">Kepailitan vs PKPU</a>
+            <a class="block py-3 px-4 text-sm hover:bg-slate-100 nav-link" href="#" role="tab" aria-controls="upaya-hukum" data-target="upaya-hukum">Upaya Hukum</a>
+            <a class="block py-3 px-4 text-sm hover:bg-slate-100 nav-link" href="#" role="tab" aria-controls="isu-kontemporer" data-target="isu-kontemporer">Isu Kontemporer</a>
         </div>
     </header>
 
-    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
-        <section id="beranda" class="content-section active">
-            <div class="bg-white p-6 rounded-lg shadow">
+    <main class="container mx-auto p-4 sm:p-6 lg:p-8" role="main">
+        <section id="beranda" class="content-section" role="tabpanel" tabindex="-1">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
                 <h2 class="text-3xl font-semibold mb-4 text-indigo-700">Selamat Datang di Aplikasi Interaktif Prosedur Kepailitan Indonesia</h2>
                 <p class="mb-4 text-lg">Aplikasi ini bertujuan untuk memberikan pemahaman yang komprehensif dan mudah diakses mengenai prosedur perkara kepailitan berdasarkan Undang-Undang No. 37 Tahun 2004 tentang Kepailitan dan Penundaan Kewajiban Pembayaran Utang (UU Kepailitan dan PKPU) di Indonesia.</p>
                 <p class="mb-4">Kepailitan adalah mekanisme hukum penting untuk penyelesaian utang-piutang secara kolektif ketika debitor tidak mampu memenuhi kewajibannya. Aplikasi ini akan memandu Anda melalui konsep dasar, tahapan proses, peran para pihak, hingga isu-isu terkini dalam hukum kepailitan Indonesia.</p>
-                <p>Gunakan navigasi di atas untuk menjelajahi berbagai aspek prosedur kepailitan. Setiap bagian dirancang untuk menyajikan informasi inti dari laporan sumber dengan cara yang interaktif dan mudah dipahami.</p>
+                <p>Gunakan navigasi di atas untuk menjelajahi berbagai aspek prosedur kepailitan. Setiap bagian dirancang untuk menyajikan informasi inti dengan cara yang interaktif dan mudah dipahami.</p>
             </div>
         </section>
 
-        <section id="konsep-dasar" class="content-section">
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h2 class="text-2xl font-semibold mb-4 text-indigo-700">📜 Konsep Dasar Kepailitan</h2>
-                <p class="mb-6">Memahami konsep dasar kepailitan adalah langkah awal yang krusial. Bagian ini menjelaskan definisi, landasan hukum, dan asas-asas fundamental yang melandasi hukum kepailitan di Indonesia, serta perbedaannya dengan PKPU.</p>
+        <section id="konsep-dasar" class="content-section" role="tabpanel" tabindex="-1">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-6 text-indigo-700">📜 Konsep Dasar Kepailitan</h2>
+                <p class="mb-6">Memahami konsep dasar kepailitan adalah langkah awal yang krusial. Bagian ini menjelaskan definisi, landasan hukum, dan asas-asas fundamental yang melandasi hukum kepailitan di Indonesia.</p>
 
-                <div class="accordion-item">
-                    <div class="accordion-header">
-                        <span><b>Definisi Kepailitan (Pasal 1 angka 1 UU Kepailitan & PKPU)</b></span>
-                        <span class="icon"></span>
+                <div class="space-y-4"> <div class="accordion-item border border-slate-200 rounded-md">
+                        <h3 class="text-lg mb-0">
+                            <button class="accordion-header-button p-4 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-semibold text-indigo-700">Definisi Kepailitan (Pasal 1 angka 1 UU Kepailitan & PKPU)</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h3>
+                        <div class="accordion-content bg-white p-4 rounded-b-md border-t border-slate-200">
+                            <p>"Kepailitan adalah sita umum atas semua kekayaan Debitor Pailit yang pengurusan dan pemberesannya dilakukan oleh Kurator di bawah pengawasan Hakim Pengawas sebagaimana diatur dalam Undang-Undang ini."</p>
+                            <p class="mt-2">Elemen kunci:</p>
+                            <ul class="list-disc list-inside ml-4 mt-1 space-y-1">
+                                <li>Sita umum (general beslag) atas seluruh aset debitor.</li>
+                                <li>Pengurusan dan pemberesan dilakukan oleh Kurator.</li>
+                                <li>Proses di bawah pengawasan Hakim Pengawas.</li>
+                            </ul>
+                            <p class="mt-2">Secara etimologis, "kepailitan" berasal dari bahasa Prancis "faillite" (kemacetan pembayaran).</p>
+                        </div>
                     </div>
-                    <div class="accordion-content">
-                        <p>"Kepailitan adalah sita umum atas semua kekayaan Debitor Pailit yang pengurusan dan pemberesannya dilakukan oleh Kurator di bawah pengawasan Hakim Pengawas sebagaimana diatur dalam Undang-Undang ini."</p>
-                        <p class="mt-2">Elemen kunci:</p>
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Sita umum (general beslag) atas seluruh aset debitor.</li>
-                            <li>Pengurusan dan pemberesan dilakukan oleh Kurator.</li>
-                            <li>Proses di bawah pengawasan Hakim Pengawas.</li>
-                        </ul>
-                        <p class="mt-2">Secara etimologis, "kepailitan" berasal dari bahasa Prancis "faillite" (kemacetan pembayaran).</p>
-                    </div>
-                </div>
 
-                <div class="accordion-item mt-4">
-                    <div class="accordion-header">
-                        <span><b>Landasan Hukum Utama</b></span>
-                        <span class="icon"></span>
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h3 class="text-lg mb-0">
+                            <button class="accordion-header-button p-4 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-semibold text-indigo-700">Landasan Hukum Utama</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h3>
+                        <div class="accordion-content bg-white p-4 rounded-b-md border-t border-slate-200">
+                            <p><strong>UU No. 37 Tahun 2004 tentang Kepailitan dan Penundaan Kewajiban Pembayaran Utang (UU Kepailitan dan PKPU):</strong> Merupakan *lex specialis* yang mengatur secara komprehensif, menggantikan peraturan sebelumnya.</p>
+                            <p class="mt-2"><strong>Kitab Undang-Undang Hukum Perdata (KUH Perdata):</strong> Terutama Pasal 1131 (seluruh kebendaan debitor menjadi tanggungan utang) dan Pasal 1132 (prinsip *pari passu pro rata parte* dan hak didahulukan).</p>
+                        </div>
                     </div>
-                    <div class="accordion-content">
-                        <p><strong>UU No. 37 Tahun 2004 tentang Kepailitan dan Penundaan Kewajiban Pembayaran Utang (UU Kepailitan dan PKPU):</strong> Merupakan *lex specialis* yang mengatur secara komprehensif, menggantikan peraturan sebelumnya.</p>
-                        <p class="mt-2"><strong>Kitab Undang-Undang Hukum Perdata (KUH Perdata):</strong> Terutama Pasal 1131 (seluruh kebendaan debitor menjadi tanggungan utang) dan Pasal 1132 (prinsip *pari passu pro rata parte* dan hak didahulukan).</p>
-                    </div>
-                </div>
 
-                <div class="accordion-item mt-4">
-                    <div class="accordion-header">
-                        <span><b>Asas-Asas Hukum Kepailitan</b></span>
-                        <span class="icon"></span>
-                    </div>
-                    <div class="accordion-content">
-                        <ul class="list-disc list-inside ml-4">
-                            <li><strong>Asas Keseimbangan:</strong> Melindungi kepentingan debitor dan para kreditor secara seimbang.</li>
-                            <li><strong>Asas Kelangsungan Usaha (*Going Concern*):</strong> Mengakomodasi upaya menjaga kelangsungan usaha debitor.</li>
-                            <li><strong>Asas Keadilan:</strong> Pembagian harta secara adil dan merata.</li>
-                            <li><strong>Asas Integrasi:</strong> Wadah terintegrasi penyelesaian seluruh utang-piutang.</li>
-                            <li><strong>Asas Cepat, Efisien, dan Transparan:</strong> Proses yang cepat, biaya terukur, dan terbuka.</li>
-                        </ul>
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h3 class="text-lg mb-0">
+                            <button class="accordion-header-button p-4 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-semibold text-indigo-700">Asas-Asas Hukum Kepailitan</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h3>
+                        <div class="accordion-content bg-white p-4 rounded-b-md border-t border-slate-200">
+                            <ul class="list-disc list-inside ml-4 space-y-1">
+                                <li><strong>Asas Keseimbangan:</strong> Melindungi kepentingan debitor dan para kreditor secara seimbang.</li>
+                                <li><strong>Asas Kelangsungan Usaha (*Going Concern*):</strong> Mengakomodasi upaya menjaga kelangsungan usaha debitor.</li>
+                                <li><strong>Asas Keadilan:</strong> Pembagian harta secara adil dan merata.</li>
+                                <li><strong>Asas Integrasi:</strong> Wadah terintegrasi penyelesaian seluruh utang-piutang.</li>
+                                <li><strong>Asas Cepat, Efisien, dan Transparan:</strong> Proses yang cepat, biaya terukur, dan terbuka.</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="alur-proses" class="content-section">
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h2 class="text-2xl font-semibold mb-4 text-indigo-700">⚙️ Alur Proses Utama Kepailitan</h2>
+        <section id="alur-proses" class="content-section" role="tabpanel" tabindex="-1">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-6 text-indigo-700">⚙️ Alur Proses Utama Kepailitan</h2>
                 <p class="mb-6">Proses kepailitan melibatkan serangkaian tahapan yang terstruktur. Klik pada setiap tahapan di bawah untuk melihat detail prosedur yang terkait.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div class="proses-card bg-indigo-500 text-white p-4 rounded-lg shadow hover:bg-indigo-600" data-subtarget="sub-permohonan">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    <div class="proses-card bg-indigo-500 text-white p-4 rounded-lg shadow-md hover:bg-indigo-600 focus:ring-2 focus:ring-indigo-300" role="button" tabindex="0" data-subtarget="sub-permohonan">
                         <h3 class="text-xl font-semibold">1. Permohonan Pailit</h3>
-                        <p class="text-sm">Pengajuan permohonan ke Pengadilan Niaga.</p>
+                        <p class="text-sm mt-1">Pengajuan permohonan ke Pengadilan Niaga.</p>
                     </div>
-                    <div class="proses-card bg-indigo-500 text-white p-4 rounded-lg shadow hover:bg-indigo-600" data-subtarget="sub-persidangan">
+                    <div class="proses-card bg-indigo-500 text-white p-4 rounded-lg shadow-md hover:bg-indigo-600" role="button" tabindex="0" data-subtarget="sub-persidangan">
                         <h3 class="text-xl font-semibold">2. Proses Persidangan</h3>
-                        <p class="text-sm">Pemeriksaan perkara di Pengadilan Niaga.</p>
+                        <p class="text-sm mt-1">Pemeriksaan perkara di Pengadilan Niaga.</p>
                     </div>
-                    <div class="proses-card bg-indigo-500 text-white p-4 rounded-lg shadow hover:bg-indigo-600" data-subtarget="sub-putusan">
+                    <div class="proses-card bg-indigo-500 text-white p-4 rounded-lg shadow-md hover:bg-indigo-600" role="button" tabindex="0" data-subtarget="sub-putusan">
                         <h3 class="text-xl font-semibold">3. Putusan Pailit</h3>
-                        <p class="text-sm">Penetapan status pailit dan akibat hukumnya.</p>
+                        <p class="text-sm mt-1">Penetapan status pailit dan akibat hukumnya.</p>
                     </div>
-                    <div class="proses-card bg-teal-500 text-white p-4 rounded-lg shadow hover:bg-teal-600" data-subtarget="sub-pasca-putusan">
+                    <div class="proses-card bg-teal-500 text-white p-4 rounded-lg shadow-md hover:bg-teal-600" role="button" tabindex="0" data-subtarget="sub-pasca-putusan">
                         <h3 class="text-xl font-semibold">4. Pasca Putusan</h3>
-                        <p class="text-sm">Pengurusan dan pemberesan harta pailit.</p>
+                        <p class="text-sm mt-1">Pengurusan dan pemberesan harta pailit.</p>
                     </div>
-                     <div class="proses-card bg-amber-500 text-white p-4 rounded-lg shadow hover:bg-amber-600" data-subtarget="sub-perdamaian">
+                     <div class="proses-card bg-amber-500 text-white p-4 rounded-lg shadow-md hover:bg-amber-600" role="button" tabindex="0" data-subtarget="sub-perdamaian">
                         <h3 class="text-xl font-semibold">5. Perdamaian (Akkoord)</h3>
-                        <p class="text-sm">Upaya penyelesaian utang melalui kesepakatan.</p>
+                        <p class="text-sm mt-1">Upaya penyelesaian utang melalui kesepakatan.</p>
                     </div>
-                    <div class="proses-card bg-rose-500 text-white p-4 rounded-lg shadow hover:bg-rose-600" data-subtarget="sub-pengakhiran-rehabilitasi">
+                    <div class="proses-card bg-rose-500 text-white p-4 rounded-lg shadow-md hover:bg-rose-600" role="button" tabindex="0" data-subtarget="sub-pengakhiran-rehabilitasi">
                         <h3 class="text-xl font-semibold">6. Pengakhiran & Rehabilitasi</h3>
-                        <p class="text-sm">Berakhirnya status pailit dan pemulihan hak.</p>
+                        <p class="text-sm mt-1">Berakhirnya status pailit dan pemulihan hak.</p>
                     </div>
                 </div>
 
-                <div id="sub-permohonan" class="sub-content-section">
-                    <h4 class="text-xl font-semibold mt-4 mb-2 text-indigo-600">Detail Permohonan Pailit</h4>
-                    <div class="accordion-item">
-                        <div class="accordion-header"><span><b>Syarat Pengajuan Permohonan</b></span><span class="icon"></span></div>
-                        <div class="accordion-content">
+                <div id="sub-permohonan" class="sub-content-section space-y-3" aria-hidden="true">
+                    <h4 class="text-xl font-semibold text-indigo-600">Detail Permohonan Pailit</h4>
+                     <div class="accordion-item border border-slate-200 rounded-md">
+                        <h5 class="text-md mb-0">
+                            <button class="accordion-header-button p-3 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-medium text-indigo-700">Syarat Pengajuan Permohonan</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h5>
+                        <div class="accordion-content bg-white p-3 rounded-b-md border-t border-slate-200">
                             <p><strong>Syarat Materiil (Pasal 2 ayat (1) UU Kepailitan):</strong></p>
-                            <ul class="list-disc list-inside ml-4">
+                            <ul class="list-disc list-inside ml-4 mt-1">
                                 <li>Adanya Debitor yang mempunyai dua atau lebih Kreditor.</li>
                                 <li>Tidak membayar lunas sedikitnya satu utang yang telah jatuh waktu dan dapat ditagih.</li>
                                 <li><em>Catatan:</em> Tidak ada batas minimal nilai utang.</li>
@@ -177,7 +279,7 @@
                             <p class="mt-2"><strong>Pembuktian Sederhana (Pasal 8 ayat (4) UU Kepailitan):</strong></p>
                             <p>Permohonan dikabulkan jika fakta atau keadaan terbukti secara sederhana bahwa syarat materiil terpenuhi. Bertujuan untuk proses yang cepat, namun definisi "sederhana" bisa multitafsir.</p>
                             <p class="mt-2"><strong>Syarat Formil:</strong></p>
-                            <ul class="list-disc list-inside ml-4">
+                            <ul class="list-disc list-inside ml-4 mt-1">
                                 <li>Diajukan tertulis ke Pengadilan Niaga yang berwenang (domisili debitor).</li>
                                 <li>Umumnya diajukan oleh Advokat.</li>
                                 <li>Persetujuan pasangan jika debitor perorangan menikah dengan persatuan harta.</li>
@@ -185,9 +287,14 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="accordion-item mt-2">
-                        <div class="accordion-header"><span><b>Pihak yang Dapat Mengajukan</b></span><span class="icon"></span></div>
-                        <div class="accordion-content">
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                         <h5 class="text-md mb-0">
+                            <button class="accordion-header-button p-3 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-medium text-indigo-700">Pihak yang Dapat Mengajukan</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h5>
+                        <div class="accordion-content bg-white p-3 rounded-b-md border-t border-slate-200">
                             <ul class="list-disc list-inside ml-4">
                                 <li>Debitor sendiri (*voluntary petition*).</li>
                                 <li>Satu atau lebih Kreditor (*involuntary petition*).</li>
@@ -199,19 +306,29 @@
                             <p class="mt-2"><em>Catatan:</em> Kewenangan untuk lembaga keuangan banyak beralih ke OJK pasca UU OJK dan UU P2SK.</p>
                         </div>
                     </div>
-                     <div class="accordion-item mt-2">
-                        <div class="accordion-header"><span><b>Pengadilan yang Berwenang</b></span><span class="icon"></span></div>
-                        <div class="accordion-content">
+                     <div class="accordion-item border border-slate-200 rounded-md">
+                        <h5 class="text-md mb-0">
+                            <button class="accordion-header-button p-3 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-medium text-indigo-700">Pengadilan yang Berwenang</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h5>
+                        <div class="accordion-content bg-white p-3 rounded-b-md border-t border-slate-200">
                             <p>Pengadilan Niaga pada Pengadilan Negeri yang daerah hukumnya meliputi tempat kedudukan hukum (domisili) Debitor.</p>
                         </div>
                     </div>
                 </div>
 
-                <div id="sub-persidangan" class="sub-content-section">
-                    <h4 class="text-xl font-semibold mt-4 mb-2 text-indigo-600">Detail Proses Persidangan</h4>
-                    <div class="accordion-item">
-                        <div class="accordion-header"><span><b>Pendaftaran & Penetapan Sidang</b></span><span class="icon"></span></div>
-                        <div class="accordion-content">
+                <div id="sub-persidangan" class="sub-content-section space-y-3" aria-hidden="true">
+                    <h4 class="text-xl font-semibold text-indigo-600">Detail Proses Persidangan</h4>
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h5 class="text-md mb-0">
+                            <button class="accordion-header-button p-3 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-medium text-indigo-700">Pendaftaran & Penetapan Sidang</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h5>
+                        <div class="accordion-content bg-white p-3 rounded-b-md border-t border-slate-200">
                             <ul class="list-disc list-inside ml-4">
                                 <li>Panitera mendaftarkan permohonan pada tanggal diajukan.</li>
                                 <li>Berkas disampaikan ke Ketua Pengadilan Niaga (maks. 2 hari).</li>
@@ -219,9 +336,14 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="accordion-item mt-2">
-                        <div class="accordion-header"><span><b>Pemanggilan Para Pihak</b></span><span class="icon"></span></div>
-                        <div class="accordion-content">
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h5 class="text-md mb-0">
+                            <button class="accordion-header-button p-3 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-medium text-indigo-700">Pemanggilan Para Pihak</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h5>
+                        <div class="accordion-content bg-white p-3 rounded-b-md border-t border-slate-200">
                             <ul class="list-disc list-inside ml-4">
                                 <li>Jika permohonan dari Kreditor/Kejaksaan/BI/OJK/Menkeu: Pengadilan wajib memanggil Debitor.</li>
                                 <li>Jika permohonan dari Debitor: Pengadilan dapat memanggil Kreditor jika ada keraguan.</li>
@@ -229,9 +351,14 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="accordion-item mt-2">
-                        <div class="accordion-header"><span><b>Pemeriksaan & Jangka Waktu</b></span><span class="icon"></span></div>
-                        <div class="accordion-content">
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h5 class="text-md mb-0">
+                            <button class="accordion-header-button p-3 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-medium text-indigo-700">Pemeriksaan & Jangka Waktu</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h5>
+                        <div class="accordion-content bg-white p-3 rounded-b-md border-t border-slate-200">
                             <ul class="list-disc list-inside ml-4">
                                 <li>Sidang pertama maks. 20 hari setelah pendaftaran (dapat ditunda maks. 25 hari).</li>
                                 <li>Pemeriksaan bersifat cepat dan sederhana, fokus pada syarat materiil dan pembuktian sederhana.</li>
@@ -241,11 +368,16 @@
                     </div>
                 </div>
                 
-                <div id="sub-putusan" class="sub-content-section">
-                    <h4 class="text-xl font-semibold mt-4 mb-2 text-indigo-600">Detail Putusan Pailit</h4>
-                    <div class="accordion-item">
-                        <div class="accordion-header"><span><b>Sifat dan Isi Putusan</b></span><span class="icon"></span></div>
-                        <div class="accordion-content">
+                <div id="sub-putusan" class="sub-content-section space-y-3" aria-hidden="true">
+                    <h4 class="text-xl font-semibold text-indigo-600">Detail Putusan Pailit</h4>
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h5 class="text-md mb-0">
+                            <button class="accordion-header-button p-3 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-medium text-indigo-700">Sifat dan Isi Putusan</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h5>
+                        <div class="accordion-content bg-white p-3 rounded-b-md border-t border-slate-200">
                             <ul class="list-disc list-inside ml-4">
                                 <li>Diucapkan dalam sidang terbuka untuk umum.</li>
                                 <li>Bersifat *uitvoerbaar bij voorraad* (dapat dilaksanakan terlebih dahulu).</li>
@@ -255,36 +387,56 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="accordion-item mt-2">
-                        <div class="accordion-header"><span><b>Akibat Hukum Langsung bagi Debitor</b></span><span class="icon"></span></div>
-                        <div class="accordion-content">
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h5 class="text-md mb-0">
+                            <button class="accordion-header-button p-3 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-medium text-indigo-700">Akibat Hukum Langsung bagi Debitor</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h5>
+                        <div class="accordion-content bg-white p-3 rounded-b-md border-t border-slate-200">
                             <p>Sejak putusan diucapkan (mulai pukul 00.00), Debitor <strong>demi hukum kehilangan haknya untuk menguasai dan mengurus kekayaannya</strong> yang termasuk harta pailit (Pasal 24 ayat (1) UU Kepailitan).</p>
                             <p class="mt-2">Perikatan yang dibuat Debitor setelah putusan, tidak dapat dibayar dari harta pailit kecuali menguntungkan harta pailit.</p>
                         </div>
                     </div>
                 </div>
 
-                <div id="sub-pasca-putusan" class="sub-content-section">
-                    <h4 class="text-xl font-semibold mt-4 mb-2 text-teal-600">Detail Tahapan Pasca Putusan</h4>
-                     <div class="accordion-item">
-                        <div class="accordion-header"><span><b>Pengumuman Putusan Pailit</b></span><span class="icon"></span></div>
-                        <div class="accordion-content">
+                <div id="sub-pasca-putusan" class="sub-content-section space-y-3" aria-hidden="true">
+                    <h4 class="text-xl font-semibold text-teal-600">Detail Tahapan Pasca Putusan</h4>
+                     <div class="accordion-item border border-slate-200 rounded-md">
+                        <h5 class="text-md mb-0">
+                            <button class="accordion-header-button p-3 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-medium text-teal-700">Pengumuman Putusan Pailit</span>
+                                <svg class="accordion-icon w-5 h-5 text-teal-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h5>
+                        <div class="accordion-content bg-white p-3 rounded-b-md border-t border-slate-200">
                             <p>Kurator wajib mengumumkan ikhtisar putusan pailit dalam Berita Negara RI dan min. 2 surat kabar harian (maks. 5 hari setelah putusan diterima).</p>
                             <p class="mt-2">Isi pengumuman: Nama Debitor, Hakim Pengawas, Kurator, Panitia Kreditor (jika ada), tempat & waktu rapat Kreditor pertama.</p>
                         </div>
                     </div>
-                    <div class="accordion-item mt-2">
-                        <div class="accordion-header"><span><b>Inventarisasi & Pengamanan Harta Pailit</b></span><span class="icon"></span></div>
-                        <div class="accordion-content">
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h5 class="text-md mb-0">
+                            <button class="accordion-header-button p-3 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-medium text-teal-700">Inventarisasi & Pengamanan Harta Pailit</span>
+                                <svg class="accordion-icon w-5 h-5 text-teal-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h5>
+                        <div class="accordion-content bg-white p-3 rounded-b-md border-t border-slate-200">
                             <p>Kurator melakukan pengamanan dan pencatatan (inventarisasi) harta pailit (maks. 2 hari setelah menerima putusan pengangkatan).</p>
                             <p class="mt-2">Harta pailit meliputi seluruh kekayaan Debitor saat putusan diucapkan dan yang diperoleh selama kepailitan (Pasal 21), kecuali yang dikecualikan (Pasal 22: kebutuhan pokok, alat kerja wajar, dll.).</p>
                             <p class="mt-2">Kurator dapat meminta penyegelan harta pailit.</p>
                             <p class="mt-2">Kurator membuat daftar piutang dan utang harta pailit.</p>
                         </div>
                     </div>
-                    <div class="accordion-item mt-2">
-                        <div class="accordion-header"><span><b>Verifikasi Tagihan (Pencocokan Piutang)</b></span><span class="icon"></span></div>
-                        <div class="accordion-content">
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h5 class="text-md mb-0">
+                            <button class="accordion-header-button p-3 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-medium text-teal-700">Verifikasi Tagihan (Pencocokan Piutang)</span>
+                                <svg class="accordion-icon w-5 h-5 text-teal-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h5>
+                        <div class="accordion-content bg-white p-3 rounded-b-md border-t border-slate-200">
                             <p>Hakim Pengawas menetapkan (maks. 14 hari setelah putusan pailit):</p>
                             <ul class="list-disc list-inside ml-4">
                                 <li>Batas akhir pengajuan tagihan Kreditor.</li>
@@ -297,12 +449,12 @@
                             <p class="mt-2">Jika ada bantahan tak terdamaikan, diselesaikan melalui gugatan perdata.</p>
                             <p class="mt-2"><strong>Penggolongan Kreditor:</strong></p>
                             <div class="table-container mt-2">
-                                <table class="min-w-full">
+                                <table class="min-w-full text-sm">
                                     <thead>
                                         <tr>
-                                            <th>Jenis Kreditor</th>
-                                            <th>Definisi Singkat</th>
-                                            <th>Hak Utama Pelunasan</th>
+                                            <th class="whitespace-nowrap">Jenis Kreditor</th>
+                                            <th class="whitespace-nowrap">Definisi Singkat</th>
+                                            <th class="whitespace-nowrap">Hak Utama Pelunasan</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -327,17 +479,27 @@
                              <p class="mt-2"><em>Catatan Kreditor Separatis:</em> Hak eksekusi dapat ditangguhkan (stay) maks. 90 hari. Wajib eksekusi maks. 2 bulan setelah insolvensi.</p>
                         </div>
                     </div>
-                    <div class="accordion-item mt-2">
-                        <div class="accordion-header"><span><b>Pemberesan (Likuidasi) Harta Pailit</b></span><span class="icon"></span></div>
-                        <div class="accordion-content">
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                         <h5 class="text-md mb-0">
+                            <button class="accordion-header-button p-3 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-medium text-teal-700">Pemberesan (Likuidasi) Harta Pailit</span>
+                                <svg class="accordion-icon w-5 h-5 text-teal-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h5>
+                        <div class="accordion-content bg-white p-3 rounded-b-md border-t border-slate-200">
                             <p>Jika tidak ada perdamaian atau perdamaian gagal, harta pailit masuk keadaan <strong>insolvensi</strong>.</p>
                             <p class="mt-2">Kurator memulai penjualan (likuidasi) semua harta pailit.</p>
                             <p class="mt-2">Penjualan di muka umum (lelang). Jika tidak optimal, bisa di bawah tangan dengan izin Hakim Pengawas.</p>
                         </div>
                     </div>
-                    <div class="accordion-item mt-2">
-                        <div class="accordion-header"><span><b>Pembagian Hasil Likuidasi</b></span><span class="icon"></span></div>
-                        <div class="accordion-content">
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h5 class="text-md mb-0">
+                            <button class="accordion-header-button p-3 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-medium text-teal-700">Pembagian Hasil Likuidasi</span>
+                                <svg class="accordion-icon w-5 h-5 text-teal-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h5>
+                        <div class="accordion-content bg-white p-3 rounded-b-md border-t border-slate-200">
                             <p>Kurator menyusun daftar pembagian (disetujui Hakim Pengawas), memuat rincian penerimaan, pengeluaran, nama kreditor, jumlah piutang, dan bagian yang diterima.</p>
                             <p class="mt-2"><strong>Prioritas Pembayaran:</strong></p>
                             <ol class="list-decimal list-inside ml-4">
@@ -352,18 +514,28 @@
                     </div>
                 </div>
 
-                <div id="sub-perdamaian" class="sub-content-section">
-                    <h4 class="text-xl font-semibold mt-4 mb-2 text-amber-600">Detail Perdamaian (Akkoord)</h4>
-                     <div class="accordion-item">
-                        <div class="accordion-header"><span><b>Pengertian dan Tujuan</b></span><span class="icon"></span></div>
-                        <div class="accordion-content">
+                <div id="sub-perdamaian" class="sub-content-section space-y-3" aria-hidden="true">
+                    <h4 class="text-xl font-semibold text-amber-600">Detail Perdamaian (Akkoord)</h4>
+                     <div class="accordion-item border border-slate-200 rounded-md">
+                        <h5 class="text-md mb-0">
+                            <button class="accordion-header-button p-3 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-medium text-amber-700">Pengertian dan Tujuan</span>
+                                <svg class="accordion-icon w-5 h-5 text-amber-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h5>
+                        <div class="accordion-content bg-white p-3 rounded-b-md border-t border-slate-200">
                             <p>Usulan dari Debitor Pailit kepada Kreditor (khususnya konkuren) untuk menyelesaikan utang di luar skema likuidasi penuh.</p>
                             <p class="mt-2">Tujuan: Restrukturisasi kewajiban, menghindari likuidasi total, potensi melanjutkan usaha.</p>
                         </div>
                     </div>
-                    <div class="accordion-item mt-2">
-                        <div class="accordion-header"><span><b>Prosedur Pengajuan & Pembahasan</b></span><span class="icon"></span></div>
-                        <div class="accordion-content">
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h5 class="text-md mb-0">
+                            <button class="accordion-header-button p-3 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-medium text-amber-700">Prosedur Pengajuan & Pembahasan</span>
+                                <svg class="accordion-icon w-5 h-5 text-amber-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h5>
+                        <div class="accordion-content bg-white p-3 rounded-b-md border-t border-slate-200">
                             <ul class="list-disc list-inside ml-4">
                                 <li>Debitor Pailit berhak menawarkan perdamaian (Pasal 144).</li>
                                 <li>Rencana perdamaian disediakan di Kepaniteraan Pengadilan Niaga (maks. 8 hari sebelum rapat verifikasi).</li>
@@ -372,9 +544,14 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="accordion-item mt-2">
-                        <div class="accordion-header"><span><b>Pemungutan Suara & Syarat Penerimaan</b></span><span class="icon"></span></div>
-                        <div class="accordion-content">
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h5 class="text-md mb-0">
+                            <button class="accordion-header-button p-3 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-medium text-amber-700">Pemungutan Suara & Syarat Penerimaan</span>
+                                <svg class="accordion-icon w-5 h-5 text-amber-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h5>
+                        <div class="accordion-content bg-white p-3 rounded-b-md border-t border-slate-200">
                             <p>Hak suara: Kreditor Konkuren.</p>
                             <p class="mt-2">Kreditor Separatis & Preferen tidak boleh bersuara kecuali melepaskan hak didahulukan.</p>
                             <p class="mt-2"><strong>Syarat Diterima (Pasal 151):</strong></p>
@@ -385,9 +562,14 @@
                             <p class="mt-2">Ada mekanisme pemungutan suara kedua jika syarat tertentu terpenuhi pada pemungutan pertama.</p>
                         </div>
                     </div>
-                    <div class="accordion-item mt-2">
-                        <div class="accordion-header"><span><b>Pengesahan (Homologasi) & Akibat Hukum</b></span><span class="icon"></span></div>
-                        <div class="accordion-content">
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h5 class="text-md mb-0">
+                            <button class="accordion-header-button p-3 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-medium text-amber-700">Pengesahan (Homologasi) & Akibat Hukum</span>
+                                <svg class="accordion-icon w-5 h-5 text-amber-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h5>
+                        <div class="accordion-content bg-white p-3 rounded-b-md border-t border-slate-200">
                             <p>Jika diterima Kreditor, diajukan pengesahan ke Pengadilan Niaga.</p>
                             <p class="mt-2">Pengadilan wajib menolak pengesahan jika (Pasal 159 ayat (2)):</p>
                             <ul class="list-disc list-inside ml-4">
@@ -398,9 +580,14 @@
                             <p class="mt-2">Jika disahkan dan BHT: mengikat semua Kreditor Konkuren, kepailitan berakhir.</p>
                         </div>
                     </div>
-                    <div class="accordion-item mt-2">
-                        <div class="accordion-header"><span><b>Penolakan atau Pembatalan Perdamaian</b></span><span class="icon"></span></div>
-                        <div class="accordion-content">
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h5 class="text-md mb-0">
+                            <button class="accordion-header-button p-3 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-medium text-amber-700">Penolakan atau Pembatalan Perdamaian</span>
+                                <svg class="accordion-icon w-5 h-5 text-amber-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h5>
+                        <div class="accordion-content bg-white p-3 rounded-b-md border-t border-slate-200">
                             <p>Jika ditolak Kreditor atau Pengadilan: Debitor tidak bisa lagi menawarkan perdamaian, harta pailit insolven, lanjut likuidasi.</p>
                             <p class="mt-2">Perdamaian yang telah disahkan dapat dituntut pembatalannya jika Debitor lalai memenuhi isi perdamaian. Jika dibatalkan, kepailitan dibuka kembali, Debitor tidak bisa lagi menawarkan perdamaian.</p>
                             <p class="mt-2"><em>Catatan:</em> Ada diskursus terkait SEMA No. 5/2021 mengenai larangan pengajuan perdamaian jika pailit akibat gagal PKPU.</p>
@@ -408,11 +595,16 @@
                     </div>
                 </div>
 
-                <div id="sub-pengakhiran-rehabilitasi" class="sub-content-section">
-                    <h4 class="text-xl font-semibold mt-4 mb-2 text-rose-600">Detail Pengakhiran Kepailitan & Rehabilitasi</h4>
-                    <div class="accordion-item">
-                        <div class="accordion-header"><span><b>Sebab-Sebab Berakhirnya Kepailitan</b></span><span class="icon"></span></div>
-                        <div class="accordion-content">
+                <div id="sub-pengakhiran-rehabilitasi" class="sub-content-section space-y-3" aria-hidden="true">
+                    <h4 class="text-xl font-semibold text-rose-600">Detail Pengakhiran Kepailitan & Rehabilitasi</h4>
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h5 class="text-md mb-0">
+                            <button class="accordion-header-button p-3 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-medium text-rose-700">Sebab-Sebab Berakhirnya Kepailitan</span>
+                                <svg class="accordion-icon w-5 h-5 text-rose-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h5>
+                        <div class="accordion-content bg-white p-3 rounded-b-md border-t border-slate-200">
                             <ul class="list-disc list-inside ml-4">
                                 <li>Pengesahan perdamaian yang telah BHT.</li>
                                 <li>Pembayaran penuh atau selesainya pembagian harta pailit (daftar pembagian penutup mengikat).</li>
@@ -420,9 +612,14 @@
                             </ul>
                         </div>
                     </div>
-                     <div class="accordion-item mt-2">
-                        <div class="accordion-header"><span><b>Prosedur Rehabilitasi</b></span><span class="icon"></span></div>
-                        <div class="accordion-content">
+                     <div class="accordion-item border border-slate-200 rounded-md">
+                        <h5 class="text-md mb-0">
+                            <button class="accordion-header-button p-3 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-medium text-rose-700">Prosedur Rehabilitasi</span>
+                                <svg class="accordion-icon w-5 h-5 text-rose-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h5>
+                        <div class="accordion-content bg-white p-3 rounded-b-md border-t border-slate-200">
                             <p>Tujuan: Memulihkan nama baik dan hak-hak perdata Debitor Pailit.</p>
                             <p class="mt-2">Diajukan ke Pengadilan Niaga yang memutus pailit, setelah kepailitan berakhir.</p>
                             <p class="mt-2">Syarat: Dilampiri bukti bahwa semua Kreditor yang piutangnya diakui telah memperoleh pembayaran secara memuaskan (tidak harus lunas 100%, bisa berdasarkan pernyataan Kreditor).</p>
@@ -435,88 +632,106 @@
             </div>
         </section>
 
-        <section id="para-pihak" class="content-section">
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h2 class="text-2xl font-semibold mb-4 text-indigo-700">👥 Para Pihak Utama dalam Kepailitan</h2>
+        <section id="para-pihak" class="content-section" role="tabpanel" tabindex="-1">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-6 text-indigo-700">👥 Para Pihak Utama dalam Kepailitan</h2>
                 <p class="mb-6">Proses kepailitan melibatkan berbagai pihak dengan peran dan kepentingan masing-masing. Berikut adalah penjelasan mengenai pihak-pihak kunci:</p>
-
-                <div class="accordion-item">
-                    <div class="accordion-header"><span><b>Debitor</b></span><span class="icon"></span></div>
-                    <div class="accordion-content">
-                        <p>Pihak yang berutang dan dinyatakan pailit. Kehilangan hak menguasai dan mengurus hartanya sejak putusan pailit. Berhak mengajukan permohonan pailit sendiri, menawarkan perdamaian, dan mengajukan rehabilitasi. Wajib memberikan keterangan yang diperlukan kepada Kurator dan Hakim Pengawas.</p>
-                    </div>
-                </div>
-
-                <div class="accordion-item mt-4">
-                    <div class="accordion-header"><span><b>Kreditor</b></span><span class="icon"></span></div>
-                    <div class="accordion-content">
-                        <p>Pihak yang memiliki piutang terhadap Debitor. Berhak mengajukan permohonan pailit, mengajukan tagihan, mengikuti rapat kreditor, memberikan suara dalam perdamaian (khususnya konkuren), dan menerima pembagian harta pailit sesuai haknya.</p>
-                        <p class="mt-2"><strong>Penggolongan Kreditor (lihat juga Tabel 2 di Laporan):</strong></p>
-                        <ul class="list-disc list-inside ml-4">
-                            <li><strong>Kreditor Separatis:</strong> Piutang dijamin hak kebendaan (gadai, fidusia, hak tanggungan, hipotek). Berhak mengeksekusi sendiri objek jaminannya (dengan batasan waktu dan potensi *stay*).</li>
-                            <li><strong>Kreditor Preferen:</strong> Memiliki hak istimewa/didahulukan berdasarkan UU (misal: pajak, upah buruh).</li>
-                            <li><strong>Kreditor Konkuren:</strong> Tidak memiliki jaminan kebendaan atau hak istimewa. Menerima pelunasan secara proporsional dari sisa harta.</li>
-                        </ul>
-                        <div class="table-container mt-3">
-                            <h5 class="text-md font-semibold mb-1">Tabel Ringkasan Hak & Kewajiban Kreditor</h5>
-                            <table class="min-w-full text-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Jenis Kreditor</th>
-                                        <th>Hak Utama Terkait Pelunasan</th>
-                                        <th>Kewajiban Utama</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Separatis</td>
-                                        <td>Eksekusi sendiri objek jaminan; didahulukan dari hasil penjualan objek jaminan.</td>
-                                        <td>Eksekusi dalam 2 bulan setelah insolvensi; serahkan kelebihan hasil; daftarkan sisa tagihan sebagai konkuren jika kurang.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Preferen</td>
-                                        <td>Didahulukan setelah separatis & biaya pailit, sebelum konkuren.</td>
-                                        <td>Mendaftarkan piutang & buktikan hak istimewa.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Konkuren</td>
-                                        <td>Pelunasan proporsional dari sisa harta pailit.</td>
-                                        <td>Mendaftarkan piutang.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                <div class="space-y-4">
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h3 class="text-lg mb-0">
+                            <button class="accordion-header-button p-4 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-semibold text-indigo-700">Debitor</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h3>
+                        <div class="accordion-content bg-white p-4 rounded-b-md border-t border-slate-200">
+                            <p>Pihak yang berutang dan dinyatakan pailit. Kehilangan hak menguasai dan mengurus hartanya sejak putusan pailit. Berhak mengajukan permohonan pailit sendiri, menawarkan perdamaian, dan mengajukan rehabilitasi. Wajib memberikan keterangan yang diperlukan kepada Kurator dan Hakim Pengawas.</p>
                         </div>
                     </div>
-                </div>
-
-                <div class="accordion-item mt-4">
-                    <div class="accordion-header"><span><b>Kurator</b></span><span class="icon"></span></div>
-                    <div class="accordion-content">
-                        <p>Balai Harta Peninggalan atau orang perseorangan yang diangkat Pengadilan untuk mengurus dan membereskan harta Debitor Pailit di bawah pengawasan Hakim Pengawas.</p>
-                        <p class="mt-2"><strong>Tugas Utama:</strong> Pengurusan dan/atau pemberesan harta pailit (inventarisasi, pengamanan, pengelolaan, penjualan aset, pembagian hasil).</p>
-                        <p class="mt-2"><strong>Wewenang:</strong> Melaksanakan tugas sejak putusan pailit, dapat melakukan pinjaman (izin Hakim Pengawas), melanjutkan usaha Debitor (izin), mengajukan tuntutan hukum atas nama harta pailit.</p>
-                        <p class="mt-2"><strong>Tanggung Jawab:</strong> Bertanggung jawab atas kesalahan/kelalaian yang merugikan harta pailit.</p>
-                        <p class="mt-2"><strong>Pelaporan:</strong> Setiap 3 bulan kepada Hakim Pengawas.</p>
-                        <p class="mt-2">Harus independen dan tidak memiliki benturan kepentingan.</p>
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h3 class="text-lg mb-0">
+                            <button class="accordion-header-button p-4 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-semibold text-indigo-700">Kreditor</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h3>
+                        <div class="accordion-content bg-white p-4 rounded-b-md border-t border-slate-200">
+                            <p>Pihak yang memiliki piutang terhadap Debitor. Berhak mengajukan permohonan pailit, mengajukan tagihan, mengikuti rapat kreditor, memberikan suara dalam perdamaian (khususnya konkuren), dan menerima pembagian harta pailit sesuai haknya.</p>
+                            <p class="mt-2"><strong>Penggolongan Kreditor:</strong></p>
+                            <ul class="list-disc list-inside ml-4 mt-1">
+                                <li><strong>Kreditor Separatis:</strong> Piutang dijamin hak kebendaan (gadai, fidusia, hak tanggungan, hipotek). Berhak mengeksekusi sendiri objek jaminannya (dengan batasan waktu dan potensi *stay*).</li>
+                                <li><strong>Kreditor Preferen:</strong> Memiliki hak istimewa/didahulukan berdasarkan UU (misal: pajak, upah buruh).</li>
+                                <li><strong>Kreditor Konkuren:</strong> Tidak memiliki jaminan kebendaan atau hak istimewa. Menerima pelunasan secara proporsional dari sisa harta.</li>
+                            </ul>
+                            <div class="table-container mt-3">
+                                <h5 class="text-md font-semibold mb-1">Tabel Ringkasan Hak & Kewajiban Kreditor</h5>
+                                <table class="min-w-full text-sm">
+                                    <thead>
+                                        <tr>
+                                            <th class="whitespace-nowrap">Jenis Kreditor</th>
+                                            <th class="whitespace-nowrap">Hak Utama Terkait Pelunasan</th>
+                                            <th class="whitespace-nowrap">Kewajiban Utama</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Separatis</td>
+                                            <td>Eksekusi sendiri objek jaminan; didahulukan dari hasil penjualan objek jaminan.</td>
+                                            <td>Eksekusi dalam 2 bulan setelah insolvensi; serahkan kelebihan hasil; daftarkan sisa tagihan sebagai konkuren jika kurang.</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Preferen</td>
+                                            <td>Didahulukan setelah separatis & biaya pailit, sebelum konkuren.</td>
+                                            <td>Mendaftarkan piutang & buktikan hak istimewa.</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Konkuren</td>
+                                            <td>Pelunasan proporsional dari sisa harta pailit.</td>
+                                            <td>Mendaftarkan piutang.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
-                </div>
-
-                <div class="accordion-item mt-4">
-                    <div class="accordion-header"><span><b>Hakim Pengawas</b></span><span class="icon"></span></div>
-                    <div class="accordion-content">
-                        <p>Hakim Pengadilan Niaga yang ditunjuk dalam putusan pailit.</p>
-                        <p class="mt-2"><strong>Tugas Utama:</strong> Mengawasi pengurusan dan pemberesan harta pailit oleh Kurator.</p>
-                        <p class="mt-2"><strong>Wewenang:</strong> Mendengar saksi, memerintahkan penyelidikan, memberi izin atas tindakan Kurator tertentu, memimpin rapat Kreditor, menetapkan batas waktu pengajuan tagihan, memberikan pendapat kepada Majelis Hakim.</p>
-                        <p class="mt-2">Terhadap penetapannya dapat diajukan banding ke Pengadilan Niaga (dengan pengecualian).</p>
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h3 class="text-lg mb-0">
+                            <button class="accordion-header-button p-4 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-semibold text-indigo-700">Kurator</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h3>
+                        <div class="accordion-content bg-white p-4 rounded-b-md border-t border-slate-200">
+                            <p>Balai Harta Peninggalan atau orang perseorangan yang diangkat Pengadilan untuk mengurus dan membereskan harta Debitor Pailit di bawah pengawasan Hakim Pengawas.</p>
+                            <p class="mt-2"><strong>Tugas Utama:</strong> Pengurusan dan/atau pemberesan harta pailit (inventarisasi, pengamanan, pengelolaan, penjualan aset, pembagian hasil).</p>
+                            <p class="mt-2"><strong>Wewenang:</strong> Melaksanakan tugas sejak putusan pailit, dapat melakukan pinjaman (izin Hakim Pengawas), melanjutkan usaha Debitor (izin), mengajukan tuntutan hukum atas nama harta pailit.</p>
+                            <p class="mt-2"><strong>Tanggung Jawab:</strong> Bertanggung jawab atas kesalahan/kelalaian yang merugikan harta pailit.</p>
+                            <p class="mt-2"><strong>Pelaporan:</strong> Setiap 3 bulan kepada Hakim Pengawas.</p>
+                            <p class="mt-2">Harus independen dan tidak memiliki benturan kepentingan.</p>
+                        </div>
+                    </div>
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h3 class="text-lg mb-0">
+                            <button class="accordion-header-button p-4 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-semibold text-indigo-700">Hakim Pengawas</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h3>
+                        <div class="accordion-content bg-white p-4 rounded-b-md border-t border-slate-200">
+                            <p>Hakim Pengadilan Niaga yang ditunjuk dalam putusan pailit.</p>
+                            <p class="mt-2"><strong>Tugas Utama:</strong> Mengawasi pengurusan dan pemberesan harta pailit oleh Kurator.</p>
+                            <p class="mt-2"><strong>Wewenang:</strong> Mendengar saksi, memerintahkan penyelidikan, memberi izin atas tindakan Kurator tertentu, memimpin rapat Kreditor, menetapkan batas waktu pengajuan tagihan, memberikan pendapat kepada Majelis Hakim.</p>
+                            <p class="mt-2">Terhadap penetapannya dapat diajukan banding ke Pengadilan Niaga (dengan pengecualian).</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="kepailitan-vs-pkpu" class="content-section">
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h2 class="text-2xl font-semibold mb-4 text-indigo-700">🔄 Kepailitan vs PKPU</h2>
-                <p class="mb-6">UU No. 37 Tahun 2004 mengatur dua mekanisme utama: Kepailitan dan Penundaan Kewajiban Pembayaran Utang (PKPU). Keduanya berbeda fundamental dalam tujuan dan prosesnya. Berikut perbandingannya (diadaptasi dari Tabel 1 Laporan):</p>
+        <section id="kepailitan-vs-pkpu" class="content-section" role="tabpanel" tabindex="-1">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-6 text-indigo-700">🔄 Kepailitan vs PKPU</h2>
+                <p class="mb-6">UU No. 37 Tahun 2004 mengatur dua mekanisme utama: Kepailitan dan Penundaan Kewajiban Pembayaran Utang (PKPU). Keduanya berbeda fundamental dalam tujuan dan prosesnya.</p>
                 <div class="table-container">
                     <table class="min-w-full">
                         <thead>
@@ -565,121 +780,163 @@
                         </tbody>
                     </table>
                 </div>
-                <p class="mt-4">UU Kepailitan dan PKPU memberi prioritas pemeriksaan PKPU jika diajukan bersamaan atau setelah permohonan pailit (sebelum putusan), mengindikasikan preferensi upaya restrukturisasi.</p>
+                <p class="mt-4 text-sm italic">UU Kepailitan dan PKPU memberi prioritas pemeriksaan PKPU jika diajukan bersamaan atau setelah permohonan pailit (sebelum putusan), mengindikasikan preferensi upaya restrukturisasi.</p>
             </div>
         </section>
 
-        <section id="upaya-hukum" class="content-section">
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h2 class="text-2xl font-semibold mb-4 text-indigo-700">🏛️ Upaya Hukum</h2>
+        <section id="upaya-hukum" class="content-section" role="tabpanel" tabindex="-1">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-6 text-indigo-700">🏛️ Upaya Hukum</h2>
                 <p class="mb-6">UU Kepailitan dan PKPU menyediakan mekanisme upaya hukum terhadap putusan tertentu dari Pengadilan Niaga. Upaya hukum utama adalah kasasi dan peninjauan kembali (PK) ke Mahkamah Agung.</p>
+                <div class="space-y-4">
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h3 class="text-lg mb-0">
+                            <button class="accordion-header-button p-4 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-semibold text-indigo-700">Kasasi ke Mahkamah Agung</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h3>
+                        <div class="accordion-content bg-white p-4 rounded-b-md border-t border-slate-200">
+                            <p>Dapat diajukan terhadap:</p>
+                            <ul class="list-disc list-inside ml-4 mt-1">
+                                <li>Putusan pernyataan pailit (diajukan Debitor, Kreditor pihak, atau Kreditor lain yang tidak puas). Jangka waktu: <strong>8 hari</strong> setelah putusan. Memori kasasi wajib disampaikan saat pendaftaran. Putusan MA: <strong>60 hari</strong> setelah permohonan diterima.</li>
+                                <li>Putusan pencabutan pernyataan pailit.</li>
+                                <li>Putusan pengesahan atau penolakan perdamaian dalam kepailitan.</li>
+                                <li>Putusan mengenai perlawanan terhadap daftar pembagian.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h3 class="text-lg mb-0">
+                            <button class="accordion-header-button p-4 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-semibold text-indigo-700">Peninjauan Kembali (PK) ke Mahkamah Agung</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h3>
+                        <div class="accordion-content bg-white p-4 rounded-b-md border-t border-slate-200">
+                            <p>Dapat diajukan terhadap putusan yang telah berkekuatan hukum tetap (BHT):</p>
+                            <ul class="list-disc list-inside ml-4 mt-1">
+                                <li>Putusan pernyataan pailit yang telah BHT.</li>
+                                <li>Putusan pencabutan pernyataan pailit yang telah BHT.</li>
+                                <li>Putusan hakim terkait PKPU yang telah BHT (alasan: *novum* atau kekeliruan nyata). Jangka waktu: 180 hari (novum) atau 30 hari (kekeliruan nyata) setelah putusan BHT.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h3 class="text-lg mb-0">
+                            <button class="accordion-header-button p-4 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-semibold text-indigo-700">Upaya Hukum Terkait PKPU</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h3>
+                        <div class="accordion-content bg-white p-4 rounded-b-md border-t border-slate-200">
+                            <p>Awalnya sangat dibatasi (Pasal 235 ayat (1) & Pasal 293 ayat (1) UU Kepailitan: tidak dapat diajukan upaya hukum apapun).</p>
+                            <p class="mt-2"><strong>Perkembangan Putusan MK:</strong> Putusan MK No. 23/PUU-XIX/2021 dan No. 17/PUU-XVIII/2020 membuka kemungkinan kasasi terhadap putusan PKPU tertentu (misal, yang diajukan Kreditor atau menolak pengesahan perdamaian yang berakibat pailit).</p>
+                            <p class="mt-2">Jaksa Agung dapat mengajukan kasasi demi kepentingan hukum terhadap putusan PKPU.</p>
+                        </div>
+                    </div>
+                </div>
 
-                <div class="accordion-item">
-                    <div class="accordion-header"><span><b>Kasasi ke Mahkamah Agung</b></span><span class="icon"></span></div>
-                    <div class="accordion-content">
-                        <p>Dapat diajukan terhadap:</p>
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Putusan pernyataan pailit (diajukan Debitor, Kreditor pihak, atau Kreditor lain yang tidak puas). Jangka waktu: <strong>8 hari</strong> setelah putusan. Memori kasasi wajib disampaikan saat pendaftaran. Putusan MA: <strong>60 hari</strong> setelah permohonan diterima.</li>
-                            <li>Putusan pencabutan pernyataan pailit.</li>
-                            <li>Putusan pengesahan atau penolakan perdamaian dalam kepailitan.</li>
-                            <li>Putusan mengenai perlawanan terhadap daftar pembagian.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="accordion-item mt-4">
-                    <div class="accordion-header"><span><b>Peninjauan Kembali (PK) ke Mahkamah Agung</b></span><span class="icon"></span></div>
-                    <div class="accordion-content">
-                        <p>Dapat diajukan terhadap putusan yang telah berkekuatan hukum tetap (BHT):</p>
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Putusan pernyataan pailit yang telah BHT.</li>
-                            <li>Putusan pencabutan pernyataan pailit yang telah BHT.</li>
-                            <li>Putusan hakim terkait PKPU yang telah BHT (alasan: *novum* atau kekeliruan nyata). Jangka waktu: 180 hari (novum) atau 30 hari (kekeliruan nyata) setelah putusan BHT.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="accordion-item mt-4">
-                    <div class="accordion-header"><span><b>Upaya Hukum Terkait PKPU</b></span><span class="icon"></span></div>
-                    <div class="accordion-content">
-                        <p>Awalnya sangat dibatasi (Pasal 235 ayat (1) & Pasal 293 ayat (1) UU Kepailitan: tidak dapat diajukan upaya hukum apapun).</p>
-                        <p class="mt-2"><strong>Perkembangan Putusan MK:</strong> Putusan MK No. 23/PUU-XIX/2021 dan No. 17/PUU-XVIII/2020 membuka kemungkinan kasasi terhadap putusan PKPU tertentu (misal, yang diajukan Kreditor atau menolak pengesahan perdamaian yang berakibat pailit).</p>
-                        <p class="mt-2">Jaksa Agung dapat mengajukan kasasi demi kepentingan hukum terhadap putusan PKPU.</p>
-                    </div>
-                </div>
-
-                <div class="mt-6">
-                    <h3 class="text-xl font-semibold mb-3 text-indigo-600">⏳ Jangka Waktu Kunci (diadaptasi dari Tabel 3 Laporan)</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200"><strong>Permohonan pailit s.d. putusan PN Niaga:</strong> Maks. 60 hari</div>
-                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200"><strong>Pengajuan kasasi (putusan pailit):</strong> Maks. 8 hari (sejak putusan)</div>
-                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200"><strong>Putusan MA atas kasasi (pailit):</strong> Maks. 60 hari (sejak diterima MA)</div>
-                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200"><strong>Pengajuan PK (novum):</strong> 180 hari (sejak putusan BHT)</div>
-                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200"><strong>Pengajuan PK (kekeliruan nyata):</strong> 30 hari (sejak putusan BHT)</div>
-                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200"><strong>Pengumuman putusan pailit (Kurator):</strong> Maks. 5 hari (setelah diterima)</div>
-                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200"><strong>Penetapan batas tagihan & rapat verifikasi (Hakim Pengawas):</strong> Maks. 14 hari (setelah putusan pailit)</div>
-                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200"><strong>Eksekusi Kreditor Separatis (setelah insolvensi):</strong> Maks. 2 bulan</div>
-                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200"><strong>Stay eksekusi Kreditor Separatis:</strong> Paling lama 90 hari</div>
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold mb-3 text-indigo-600">⏳ Jangka Waktu Kunci</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 shadow"><strong>Permohonan pailit s.d. putusan PN Niaga:</strong> Maks. 60 hari</div>
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 shadow"><strong>Pengajuan kasasi (putusan pailit):</strong> Maks. 8 hari (sejak putusan)</div>
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 shadow"><strong>Putusan MA atas kasasi (pailit):</strong> Maks. 60 hari (sejak diterima MA)</div>
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 shadow"><strong>Pengajuan PK (novum):</strong> 180 hari (sejak putusan BHT)</div>
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 shadow"><strong>Pengajuan PK (kekeliruan nyata):</strong> 30 hari (sejak putusan BHT)</div>
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 shadow"><strong>Pengumuman putusan pailit (Kurator):</strong> Maks. 5 hari (setelah diterima)</div>
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 shadow"><strong>Penetapan batas tagihan & rapat verifikasi (Hakim Pengawas):</strong> Maks. 14 hari (setelah putusan pailit)</div>
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 shadow"><strong>Eksekusi Kreditor Separatis (setelah insolvensi):</strong> Maks. 2 bulan</div>
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 shadow"><strong>Stay eksekusi Kreditor Separatis:</strong> Paling lama 90 hari</div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="isu-kontemporer" class="content-section">
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h2 class="text-2xl font-semibold mb-4 text-indigo-700">🌐 Isu Kontemporer & Arah Pengembangan</h2>
+        <section id="isu-kontemporer" class="content-section" role="tabpanel" tabindex="-1">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-6 text-indigo-700">🌐 Isu Kontemporer & Arah Pengembangan</h2>
                 <p class="mb-6">Hukum kepailitan Indonesia terus berkembang dan menghadapi berbagai tantangan implementasi. Bagian ini membahas isu-isu terkini dan wacana pengembangannya.</p>
-
-                <div class="accordion-item">
-                    <div class="accordion-header"><span><b>Tantangan Implementasi UU No. 37/2004</b></span><span class="icon"></span></div>
-                    <div class="accordion-content">
-                        <ul class="list-disc list-inside ml-4">
-                            <li><strong>Efektivitas & Efisiensi:</strong> Terhambat oleh debitor tidak kooperatif, penyembunyian aset, kreditor beritikad buruk.</li>
-                            <li><strong>Keseimbangan Perlindungan:</strong> Kritik bahwa UU kadang lebih berpihak pada kreditor, merugikan debitor solven.</li>
-                        </ul>
+                <div class="space-y-4">
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h3 class="text-lg mb-0">
+                            <button class="accordion-header-button p-4 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-semibold text-indigo-700">Tantangan Implementasi UU No. 37/2004</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h3>
+                        <div class="accordion-content bg-white p-4 rounded-b-md border-t border-slate-200">
+                            <ul class="list-disc list-inside ml-4 mt-1">
+                                <li><strong>Efektivitas & Efisiensi:</strong> Terhambat oleh debitor tidak kooperatif, penyembunyian aset, kreditor beritikad buruk.</li>
+                                <li><strong>Keseimbangan Perlindungan:</strong> Kritik bahwa UU kadang lebih berpihak pada kreditor, merugikan debitor solven.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h3 class="text-lg mb-0">
+                            <button class="accordion-header-button p-4 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-semibold text-indigo-700">Diskursus Pembuktian Sederhana & Batas Minimal Utang</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h3>
+                        <div class="accordion-content bg-white p-4 rounded-b-md border-t border-slate-200">
+                            <ul class="list-disc list-inside ml-4 mt-1">
+                                <li><strong>Pembuktian Sederhana:</strong> Ketiadaan definisi jelas menimbulkan multitafsir dan ketidakpastian hukum. Perlu pertimbangan kondisi finansial debitor (tes insolvensi).</li>
+                                <li><strong>Batas Minimal Utang:</strong> Ketiadaan syarat batas minimal nilai utang dikhawatirkan disalahgunakan. Wacana pengaturan ambang batas.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h3 class="text-lg mb-0">
+                            <button class="accordion-header-button p-4 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-semibold text-indigo-700">Peran dan Independensi Kurator/Pengurus</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h3>
+                        <div class="accordion-content bg-white p-4 rounded-b-md border-t border-slate-200">
+                            <p>Tantangan terkait independensi, profesionalisme, dan efektivitas. Perlu penguatan pengawasan, standar profesi, dan sanksi tegas.</p>
+                        </div>
+                    </div>
+                     <div class="accordion-item border border-slate-200 rounded-md">
+                        <h3 class="text-lg mb-0">
+                            <button class="accordion-header-button p-4 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-semibold text-indigo-700">Wacana Amandemen UU Kepailitan dan PKPU</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h3>
+                        <div class="accordion-content bg-white p-4 rounded-b-md border-t border-slate-200">
+                            <p>Naskah Akademik RUU Perubahan telah disusun BPHN.</p>
+                            <p class="mt-2">Isu utama usulan amandemen:</p>
+                            <ul class="list-disc list-inside ml-4 mt-1">
+                                <li>Pengetatan syarat pailit (tes insolvensi, batas minimal utang).</li>
+                                <li>Klarifikasi pembuktian sederhana.</li>
+                                <li>Pengenalan *automatic stay* yang lebih efektif.</li>
+                                <li>Penyesuaian kewenangan OJK.</li>
+                                <li>Pengaturan kepailitan BUMN.</li>
+                                <li>Evaluasi peran Panitera.</li>
+                                <li>Peninjauan jangka waktu eksekusi kreditor separatis.</li>
+                            </ul>
+                            <p class="mt-2">Urgensi revisi didorong dinamika ekonomi, kebutuhan kepastian hukum, keseimbangan perlindungan, dan penyelarasan dengan praktik internasional.</p>
+                        </div>
+                    </div>
+                    <div class="accordion-item border border-slate-200 rounded-md">
+                        <h3 class="text-lg mb-0">
+                            <button class="accordion-header-button p-4 bg-slate-50 hover:bg-slate-100 rounded-t-md w-full" aria-expanded="false">
+                                <span class="font-semibold text-indigo-700">Peran Putusan MA & MK</span>
+                                <svg class="accordion-icon w-5 h-5 text-indigo-600 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </h3>
+                        <div class="accordion-content bg-white p-4 rounded-b-md border-t border-slate-200">
+                            <p>Putusan MA dan MK membentuk interpretasi dan penerapan hukum kepailitan.</p>
+                            <p class="mt-2">Contoh kasus MA: sengketa daftar pembagian, *actio pauliana*, pembatalan perdamaian.</p>
+                            <p class="mt-2">Contoh putusan MK signifikan: terkait kewenangan Panitera menolak pendaftaran, pembukaan upaya hukum kasasi untuk putusan PKPU tertentu.</p>
+                        </div>
                     </div>
                 </div>
-                <div class="accordion-item mt-4">
-                    <div class="accordion-header"><span><b>Diskursus Pembuktian Sederhana & Batas Minimal Utang</b></span><span class="icon"></span></div>
-                    <div class="accordion-content">
-                        <ul class="list-disc list-inside ml-4">
-                            <li><strong>Pembuktian Sederhana:</strong> Ketiadaan definisi jelas menimbulkan multitafsir dan ketidakpastian hukum. Perlu pertimbangan kondisi finansial debitor (tes insolvensi).</li>
-                            <li><strong>Batas Minimal Utang:</strong> Ketiadaan syarat batas minimal nilai utang dikhawatirkan disalahgunakan. Wacana pengaturan ambang batas.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="accordion-item mt-4">
-                    <div class="accordion-header"><span><b>Peran dan Independensi Kurator/Pengurus</b></span><span class="icon"></span></div>
-                    <div class="accordion-content">
-                        <p>Tantangan terkait independensi, profesionalisme, dan efektivitas. Perlu penguatan pengawasan, standar profesi, dan sanksi tegas.</p>
-                    </div>
-                </div>
-                <div class="accordion-item mt-4">
-                    <div class="accordion-header"><span><b>Wacana Amandemen UU Kepailitan dan PKPU</b></span><span class="icon"></span></div>
-                    <div class="accordion-content">
-                        <p>Naskah Akademik RUU Perubahan telah disusun BPHN.</p>
-                        <p class="mt-2">Isu utama usulan amandemen:</p>
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Pengetatan syarat pailit (tes insolvensi, batas minimal utang).</li>
-                            <li>Klarifikasi pembuktian sederhana.</li>
-                            <li>Pengenalan *automatic stay* yang lebih efektif.</li>
-                            <li>Penyesuaian kewenangan OJK.</li>
-                            <li>Pengaturan kepailitan BUMN.</li>
-                            <li>Evaluasi peran Panitera.</li>
-                            <li>Peninjauan jangka waktu eksekusi kreditor separatis.</li>
-                        </ul>
-                        <p class="mt-2">Urgensi revisi didorong dinamika ekonomi, kebutuhan kepastian hukum, keseimbangan perlindungan, dan penyelarasan dengan praktik internasional.</p>
-                    </div>
-                </div>
-                 <div class="accordion-item mt-4">
-                    <div class="accordion-header"><span><b>Peran Putusan MA & MK</b></span><span class="icon"></span></div>
-                    <div class="accordion-content">
-                        <p>Putusan MA dan MK membentuk interpretasi dan penerapan hukum kepailitan.</p>
-                        <p class="mt-2">Contoh kasus MA: sengketa daftar pembagian, *actio pauliana*, pembatalan perdamaian.</p>
-                        <p class="mt-2">Contoh putusan MK signifikan: terkait kewenangan Panitera menolak pendaftaran, pembukaan upaya hukum kasasi untuk putusan PKPU tertentu.</p>
-                    </div>
-                </div>
-                <div class="mt-6 p-4 bg-indigo-50 border-l-4 border-indigo-500 rounded">
+                <div class="mt-8 p-4 bg-indigo-50 border-l-4 border-indigo-500 rounded-r-md">
                     <h4 class="text-lg font-semibold text-indigo-700">Catatan Penting bagi Para Pihak</h4>
-                    <ul class="list-disc list-inside ml-4 mt-2 text-sm">
+                    <ul class="list-disc list-inside ml-4 mt-2 text-sm space-y-1">
                         <li>Patuhi jangka waktu yang ketat.</li>
                         <li>Siapkan dokumen dan bukti yang lengkap dan akurat.</li>
                         <li>Jaga itikad baik dalam seluruh proses.</li>
@@ -691,97 +948,239 @@
         </section>
     </main>
 
-    <footer class="bg-slate-800 text-slate-300 text-center p-4 mt-8">
-        <p class="text-sm">&copy; 2025 Prosedur Kepailitan. Dibuat oleh Kelompok 8 Hukum Kepailitan IH-B.
-            <li>MUHAMMAD ROYKHAN DWI PUTRA	(22103040163)</li>
-            <li>FARIZ AZHAR PRATAMA		(22103040164)</li>
-            <li>REZA DITYA KESUMA		(22103040178)</li>
-            <li>HABIBA DINA ALFIRA		(22103040181)</li>
-        </p>
+    <footer class="bg-slate-800 text-slate-300 text-center p-6 mt-12" role="contentinfo">
+        <p class="text-sm mb-2">&copy; 2025 Prosedur Kepailitan. Dibuat oleh Kelompok 8 Hukum Kepailitan IH-B.</p>
+        <ul class="text-xs space-y-1 sm:space-y-0 sm:space-x-4 sm:inline-flex">
+            <li>MUHAMMAD ROYKHAN DWI PUTRA (22103040163)</li>
+            <li>FARIZ AZHAR PRATAMA (22103040164)</li>
+            <li>REZA DITYA KESUMA (22103040178)</li>
+            <li>HABIBA DINA ALFIRA (22103040181)</li>
+        </ul>
     </footer>
 
     <script>
-        const navLinks = document.querySelectorAll('.nav-link');
+    document.addEventListener('DOMContentLoaded', () => {
+        const allNavLinks = document.querySelectorAll('.nav-link');
         const contentSections = document.querySelectorAll('.content-section');
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
 
-        function setActiveSection(targetId) {
+        // --- Fungsi untuk Navigasi ---
+        function setActiveSection(targetId, isMobileClick = false) {
             contentSections.forEach(section => {
-                section.classList.remove('active');
-                if (section.id === targetId) {
-                    section.classList.add('active');
+                const sectionIsActive = section.id === targetId;
+                section.classList.toggle('active', sectionIsActive);
+                section.setAttribute('aria-hidden', String(!sectionIsActive));
+                section.setAttribute('tabindex', sectionIsActive ? '0' : '-1');
+                // Jika ada sub-content yang aktif di section lain, nonaktifkan
+                if (!sectionIsActive) {
+                    section.querySelectorAll('.sub-content-section.active').forEach(activeSub => {
+                        activeSub.classList.remove('active');
+                        activeSub.setAttribute('aria-hidden', 'true');
+                        activeSub.style.maxHeight = '0';
+                        activeSub.style.opacity = '0';
+                        activeSub.style.paddingTop = '0';
+                        activeSub.style.paddingBottom = '0';
+                    });
+                     section.querySelectorAll('.accordion-item.active').forEach(openAccordion => {
+                        openAccordion.classList.remove('active');
+                        const header = openAccordion.querySelector('.accordion-header-button');
+                        const content = openAccordion.querySelector('.accordion-content');
+                        if(header) header.setAttribute('aria-expanded', 'false');
+                        if(content) {
+                            content.style.maxHeight = '0';
+                            content.style.opacity = '0';
+                            content.style.paddingTop = '0';
+                            content.style.paddingBottom = '0';
+                            content.style.visibility = 'hidden';
+                        }
+                        const icon = header.querySelector('.accordion-icon');
+                        if (icon) icon.style.transform = 'rotate(0deg)';
+                    });
                 }
             });
-            navLinks.forEach(link => {
-                link.classList.remove('active');
-                if (link.dataset.target === targetId) {
-                    link.classList.add('active');
+
+            allNavLinks.forEach(link => {
+                const linkControlsTarget = link.dataset.target === targetId;
+                const isMobileContext = link.closest('#mobile-menu') !== null;
+
+                link.classList.remove('active', 'active-mobile'); // Hapus kedua kelas dulu
+                if (linkControlsTarget) {
+                    if (isMobileContext) {
+                        link.classList.add('active-mobile');
+                    } else {
+                        link.classList.add('active');
+                    }
                 }
+                link.setAttribute('aria-selected', String(linkControlsTarget));
             });
-            if (mobileMenu.classList.contains('block')) {
+
+            if (isMobileClick && mobileMenu.classList.contains('block')) {
                 mobileMenu.classList.remove('block');
                 mobileMenu.classList.add('hidden');
+                mobileMenuButton.setAttribute('aria-expanded', 'false');
             }
-            window.scrollTo(0, 0);
+            
+            const activeContentSection = document.getElementById(targetId);
+            if (activeContentSection) {
+                // Tunggu animasi fadeIn selesai sebelum scroll dan fokus (jika ada)
+                setTimeout(() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    // activeContentSection.focus({ preventScroll: true }); // Fokus tanpa scroll tambahan
+                }, 50); // Sedikit delay
+            }
         }
 
-        navLinks.forEach(link => {
+        allNavLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const targetId = link.dataset.target;
-                setActiveSection(targetId);
+                const isMobile = link.closest('#mobile-menu') !== null;
+                setActiveSection(targetId, isMobile);
+            });
+             // Aksesibilitas Keyboard untuk Navigasi
+            link.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    link.click();
+                }
             });
         });
 
         mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-            mobileMenu.classList.toggle('block');
+            const isExpanded = mobileMenu.classList.toggle('hidden');
+            mobileMenu.classList.toggle('block', !isExpanded);
+            mobileMenuButton.setAttribute('aria-expanded', String(!isExpanded));
         });
         
-        // Alur Proses interactivity
+        // --- Interaktivitas untuk "Alur Proses" ---
         const prosesCards = document.querySelectorAll('.proses-card');
-        const subContentSections = document.querySelectorAll('.sub-content-section');
+        const alurProsesSubSections = document.querySelectorAll('#alur-proses .sub-content-section');
 
         prosesCards.forEach(card => {
-            card.addEventListener('click', () => {
-                const subTargetId = card.dataset.subtarget;
-                
-                // Close all other sub-sections within the same main "alur-proses" section
-                subContentSections.forEach(subSection => {
-                    if (subSection.id !== subTargetId && subSection.closest('#alur-proses')) {
-                         subSection.classList.remove('active');
-                    }
-                });
-
-                // Toggle the clicked sub-section
-                const targetSubSection = document.getElementById(subTargetId);
-                if (targetSubSection) {
-                    targetSubSection.classList.toggle('active');
+            card.addEventListener('click', () => toggleAlurProsesSubSection(card.dataset.subtarget));
+            card.addEventListener('keydown', (e) => { // Aksesibilitas Keyboard
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleAlurProsesSubSection(card.dataset.subtarget);
                 }
             });
         });
 
-        // Accordion interactivity
+        function toggleAlurProsesSubSection(subTargetId) {
+            const targetSubSection = document.getElementById(subTargetId);
+            if (!targetSubSection) return;
+
+            const currentlyActive = targetSubSection.classList.contains('active');
+
+            alurProsesSubSections.forEach(subSection => {
+                if (subSection.id !== subTargetId) {
+                    subSection.classList.remove('active');
+                    subSection.setAttribute('aria-hidden', 'true');
+                    subSection.style.maxHeight = '0';
+                    subSection.style.opacity = '0';
+                    subSection.style.paddingTop = '0';
+                    subSection.style.paddingBottom = '0';
+                }
+            });
+
+            targetSubSection.classList.toggle('active', !currentlyActive);
+            targetSubSection.setAttribute('aria-hidden', String(currentlyActive));
+            if (!currentlyActive) {
+                targetSubSection.style.maxHeight = targetSubSection.scrollHeight + "px";
+                targetSubSection.style.opacity = '1';
+                targetSubSection.style.paddingTop = '1rem';
+                targetSubSection.style.paddingBottom = '1rem';
+                // Fokus pada sub-bagian yang dibuka untuk navigasi keyboard
+                // setTimeout(() => targetSubSection.querySelector('h4, button, a')?.focus(), 100);
+            } else {
+                targetSubSection.style.maxHeight = '0';
+                targetSubSection.style.opacity = '0';
+                targetSubSection.style.paddingTop = '0';
+                targetSubSection.style.paddingBottom = '0';
+            }
+        }
+
+        // --- Interaktivitas untuk Accordion ---
         const accordionItems = document.querySelectorAll('.accordion-item');
-        accordionItems.forEach(item => {
-            const header = item.querySelector('.accordion-header');
-            header.addEventListener('click', () => {
-                // Close other open accordions within the same parent
-                const parent = item.parentElement;
-                parent.querySelectorAll('.accordion-item.active').forEach(openItem => {
-                    if (openItem !== item) {
-                        openItem.classList.remove('active');
-                    }
-                });
-                // Toggle current accordion
+        accordionItems.forEach((item, index) => {
+            const headerButton = item.querySelector('.accordion-header-button');
+            const content = item.querySelector('.accordion-content');
+            const icon = headerButton.querySelector('.accordion-icon');
+
+            // Pastikan ID unik untuk ARIA
+            const contentId = `accordion-content-${item.closest('section').id}-${index + 1}`;
+            const headerId = `accordion-header-${item.closest('section').id}-${index + 1}`;
+            
+            headerButton.setAttribute('id', headerId);
+            content.setAttribute('id', contentId);
+            headerButton.setAttribute('aria-controls', contentId);
+            content.setAttribute('aria-labelledby', headerId);
+
+            headerButton.addEventListener('click', () => {
+                const isActive = item.classList.contains('active');
+                
+                // Opsi: Tutup accordion lain dalam grup yang sama (jika diinginkan)
+                // const parentGroup = item.parentElement;
+                // if (parentGroup) {
+                //     parentGroup.querySelectorAll('.accordion-item.active').forEach(openItem => {
+                //         if (openItem !== item) {
+                //             openItem.classList.remove('active');
+                //             // ... (kode untuk menutup accordion lain)
+                //         }
+                //     });
+                // }
+
                 item.classList.toggle('active');
+                headerButton.setAttribute('aria-expanded', String(!isActive));
+
+                if (!isActive) { // Membuka
+                    content.style.visibility = 'visible';
+                    content.style.display = 'block'; // Harus block untuk mengukur scrollHeight
+                    content.style.maxHeight = content.scrollHeight + "px";
+                    content.style.paddingTop = ''; // Gunakan padding dari CSS
+                    content.style.paddingBottom = ''; // Gunakan padding dari CSS
+                    content.style.opacity = '1';
+                    if (icon) icon.style.transform = 'rotate(180deg)';
+                } else { // Menutup
+                    content.style.maxHeight = '0';
+                    content.style.opacity = '0';
+                    content.style.paddingTop = '0';
+                    content.style.paddingBottom = '0';
+                    // Set visibility hidden setelah transisi selesai
+                    content.addEventListener('transitionend', function handler() {
+                        if (!item.classList.contains('active')) {
+                            content.style.visibility = 'hidden';
+                            content.style.display = 'none'; // Sembunyikan setelah transisi
+                        }
+                        content.removeEventListener('transitionend', handler);
+                    }, { once: true });
+                    if (icon) icon.style.transform = 'rotate(0deg)';
+                }
             });
         });
 
-        // Set initial active section
-        setActiveSection('beranda');
+        // Atur bagian aktif awal dan status ARIA
+        const initialTargetId = 'beranda';
+        const firstNavLinkDesktop = document.querySelector(`.nav-link[data-target="${initialTargetId}"]:not(#mobile-menu .nav-link)`);
+        const firstNavLinkMobile = document.querySelector(`#mobile-menu .nav-link[data-target="${initialTargetId}"]`);
+        
+        if (firstNavLinkDesktop) {
+            firstNavLinkDesktop.classList.add('active');
+            firstNavLinkDesktop.setAttribute('aria-selected', 'true');
+        }
+        if (firstNavLinkMobile) {
+            firstNavLinkMobile.classList.add('active-mobile'); // atau 'active' jika stylingnya sama
+            firstNavLinkMobile.setAttribute('aria-selected', 'true');
+        }
+        
+        document.getElementById(initialTargetId).classList.add('active');
+        document.getElementById(initialTargetId).setAttribute('aria-hidden', 'false');
+        document.getElementById(initialTargetId).setAttribute('tabindex', '0');
 
+        // Fokus awal (opsional, bisa ke body atau elemen navigasi pertama)
+        // mobileMenuButton.focus(); 
+    });
     </script>
 
 </body>
