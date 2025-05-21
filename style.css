@@ -1,0 +1,238 @@
+
+/* style.css */
+body {
+    font-family: 'Inter', sans-serif;
+    scroll-behavior: smooth;
+    color: #1e293b; /* slate-800 */
+    background-color: #f8fafc; /* slate-50 */
+}
+
+.content-section {
+    display: none;
+}
+
+.content-section.active {
+    display: block;
+}
+
+/* Styling untuk Navigasi Utama dan Mobile */
+.nav-link, .nav-link-header, .nav-link-action {
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem; /* rounded-md */
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    text-decoration: none;
+}
+
+.nav-link:hover, .nav-link-header:hover, .nav-link-action:hover,
+.nav-link:focus, .nav-link-header:focus, .nav-link-action:focus {
+    background-color: #eef2ff; /* indigo-50 */
+    color: #4338ca; /* indigo-700 */
+    outline: 2px solid #6366f1; /* indigo-500 */
+    outline-offset: 2px;
+}
+.nav-link-action:hover, .nav-link-action:focus {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+}
+
+.nav-link.active {
+    font-weight: 600; /* semibold */
+    color: #ffffff; /* white */
+    background-color: #4f46e5; /* indigo-600 */
+}
+.nav-link.active:hover, .nav-link.active:focus {
+    background-color: #4338ca; /* indigo-700 */
+}
+
+.mobile-nav-link {
+    display: block;
+    padding: 0.75rem 1.25rem; /* py-3 px-5 */
+    font-size: 1rem; /* text-base */
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+.mobile-nav-link:hover, .mobile-nav-link:focus {
+    background-color: #eef2ff; /* indigo-50 */
+    color: #4338ca; /* indigo-700 */
+    outline: none;
+}
+
+.mobile-nav-link.active {
+    background-color: #e0e7ff; /* indigo-100 */
+    color: #4338ca; /* indigo-700 */
+    font-weight: 600; /* semibold */
+}
+
+/* Styling untuk Kartu Proses */
+.proses-card {
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.proses-card:hover, .proses-card:focus-within {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+}
+.proses-card:focus {
+    outline: 2px solid #6366f1; /* indigo-500 */
+    outline-offset: 2px;
+}
+
+.proses-card.selected {
+    transform: translateY(-2px);
+    box-shadow: 0 0 0 3px #6366f1, 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); /* indigo-500 ring and shadow-md */
+}
+
+.proses-card .icon-container {
+    margin-bottom: 0.75rem; /* 12px */
+}
+
+/* Styling untuk Sub-Content Section dari Kartu Proses */
+.sub-content-section {
+    display: none;
+    margin-top: 1.5rem; /* 24px */
+    padding-left: 1.5rem; /* 24px */
+    border-left: 3px solid #c7d2fe; /* indigo-200 */
+    background-color: #f9fafb; /* gray-50 */
+    padding: 1.5rem; /* p-6 */
+    border-radius: 0.375rem; /* rounded-md */
+}
+
+.sub-content-section.active {
+    display: block;
+}
+.sub-content-section h4:focus {
+    outline: none;
+}
+
+/* Styling untuk Tabel */
+.table-container {
+    max-width: 100%;
+    overflow-x: auto;
+    border-radius: 0.375rem; /* rounded-md */
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* shadow-sm */
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 0.75rem 1rem; /* py-3 px-4 */
+    border: 1px solid #e5e7eb; /* gray-200 */
+    text-align: left;
+    vertical-align: top;
+}
+
+th {
+    background-color: #f3f4f6; /* gray-100 */
+    font-weight: 600; /* semibold */
+    color: #374151; /* gray-700 */
+}
+
+tr:nth-child(even) {
+    background-color: #f9fafb; /* gray-50 */
+}
+tr:hover {
+    background-color: #f0f9ff; /* sky-50 */
+}
+
+/* Styling untuk Akordeon */
+.accordion-header-button {
+    cursor: pointer;
+    padding: 1rem; /* p-4 */
+    background-color: #f9fafb; /* gray-50 */
+    border: 1px solid #e5e7eb; /* gray-200 */
+    border-radius: 0.5rem; /* rounded-lg */
+    margin-bottom: 0.25rem; /* mb-1 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    text-align: left;
+    transition: background-color 0.2s ease-in-out;
+    font-weight: 500; /* medium */
+}
+
+.accordion-header-button:hover, .accordion-header-button:focus {
+    background-color: #f3f4f6; /* gray-100 */
+    outline: 2px solid #6366f1; /* indigo-500 */
+    outline-offset: 2px;
+}
+
+.accordion-content {
+    display: none;
+    padding: 1rem; /* p-4 */
+    border: 1px solid #e5e7eb; /* gray-200 */
+    border-top: none;
+    border-radius: 0 0 0.5rem 0.5rem;
+    background-color: #ffffff; /* white */
+}
+
+.accordion-item.active .accordion-content {
+    display: block;
+}
+
+.accordion-item.active .accordion-header-button {
+    background-color: #eef2ff; /* indigo-50 */
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    color: #3730a3; /* indigo-800 */
+}
+
+.accordion-item.active .accordion-header-button .accordion-icon {
+    transform: rotate(180deg);
+}
+
+.accordion-icon {
+    transition: transform 0.3s ease;
+}
+
+/* Footer */
+#current-year {
+    /* JavaScript akan mengisi ini */
+}
+
+/* Tombol Back to Top */
+#back-to-top {
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+#back-to-top.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+#back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Search Styling */
+.search-highlight {
+    background-color: #fef3c7; /* yellow-200 */
+    color: #78350f; /* yellow-800 */
+    padding: 0.1em 0.2em;
+    border-radius: 0.2em;
+    font-weight: bold;
+}
+
+#search-results-container p {
+    padding: 0.75rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    background-color: #f9fafb;
+}
+#search-results-container .result-item {
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+#search-results-container .result-item:hover {
+    background-color: #eef2ff;
+}
+#search-results-container .result-item strong {
+    color: #4f46e5;
+}
