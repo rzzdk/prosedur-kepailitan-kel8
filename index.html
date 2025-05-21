@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
-<head>
+<html lang="id" class="scroll-smooth h-full"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prosedur Kepailitan Interaktif</title>
@@ -14,6 +13,12 @@
             font-family: 'Inter', sans-serif; 
             background-color: #f1f5f9; /* bg-slate-100 */
             color: #334155; /* text-slate-700 */
+            display: flex; /* Added for sticky footer */
+            flex-direction: column; /* Added for sticky footer */
+            min-height: 100vh; /* Changed from h-full to min-height: 100vh for body */
+        }
+        main {
+            flex-grow: 1; /* Added for sticky footer */
         }
         .content-section { display: none; }
         .content-section.active { display: block; animation: fadeIn 0.5s ease-in-out; }
@@ -112,6 +117,18 @@
             opacity: 1;
             visibility: visible;
         }
+        .hukum-icon { /* Class for the law icon */
+            width: 2rem; /* 32px */
+            height: 2rem; /* 32px */
+            margin-right: 0.75rem; /* mr-3 */
+            color: #4f46e5; /* Default indigo color, can be overridden */
+        }
+        .header-hukum-icon {
+            width: 2.5rem; /* 40px */
+            height: 2.5rem; /* 40px */
+            margin-right: 0.75rem; /* mr-3 */
+            color: #4f46e5; /* indigo-600 */
+        }
 
     </style>
 </head>
@@ -119,10 +136,11 @@
 
     <header class="bg-white shadow-lg sticky top-0 z-50">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20"> {/* Increased height */}
-                <div class="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-indigo-600 mr-3">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+            <div class="flex items-center justify-between h-20"> <div class="flex items-center">
+                    <svg class="header-hukum-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.286-1.047a2.25 2.25 0 00-2.091-3.758l-.998.062M3.75 4.97l2.286-1.047a2.25 2.25 0 012.091-3.758l.998.062m-3.286 3.696A48.603 48.603 0 0112 4.5c2.291 0 4.545.16 6.75.47m-13.5 0c-1.01.143-2.01.317-3 .52m3-.52l-2.286-1.047a2.25 2.25 0 00-2.091-3.758l-.998.062M15 7.5h3l-1.5 1.5-1.5-1.5z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6h19.5M5.25 6h13.5M9 7.5h6l-1.5 1.5-1.5-1.5z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12.75h16.5m-16.5 0A2.25 2.25 0 016 10.5h12a2.25 2.25 0 012.25 2.25m-16.5 0V21m16.5-8.25V21m0 0A2.25 2.25 0 0118 23.25H6a2.25 2.25 0 01-2.25-2.25M15.75 12.75v8.25M8.25 12.75v8.25" />
                     </svg>
                     <h1 class="text-xl sm:text-2xl font-bold text-indigo-600">Prosedur Kepailitan Interaktif</h1>
                 </div>
@@ -153,7 +171,7 @@
         </div>
     </header>
 
-    <main class="container mx-auto p-4 sm:p-6 lg:p-8 min-h-screen">
+    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
         <section id="beranda" class="content-section active">
             <div class="bg-gradient-to-br from-indigo-600 to-purple-600 p-8 md:p-12 rounded-xl shadow-2xl text-white">
                 <h2 class="text-3xl md:text-4xl font-bold mb-6">Selamat Datang!</h2>
@@ -171,8 +189,8 @@
         <section id="konsep-dasar" class="content-section">
             <div class="bg-white p-6 md:p-8 rounded-xl shadow-xl">
                 <h2 class="text-2xl md:text-3xl font-semibold mb-6 text-indigo-700 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 mr-3 text-indigo-500">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                    <svg class="hukum-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.286-1.047a2.25 2.25 0 00-2.091-3.758l-.998.062M3.75 4.97l2.286-1.047a2.25 2.25 0 012.091-3.758l.998.062m-3.286 3.696A48.603 48.603 0 0112 4.5c2.291 0 4.545.16 6.75.47m-13.5 0c-1.01.143-2.01.317-3 .52m3-.52l-2.286-1.047a2.25 2.25 0 00-2.091-3.758l-.998.062M15 7.5h3l-1.5 1.5-1.5-1.5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6h19.5M5.25 6h13.5M9 7.5h6l-1.5 1.5-1.5-1.5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12.75h16.5m-16.5 0A2.25 2.25 0 016 10.5h12a2.25 2.25 0 012.25 2.25m-16.5 0V21m16.5-8.25V21m0 0A2.25 2.25 0 0118 23.25H6a2.25 2.25 0 01-2.25-2.25M15.75 12.75v8.25M8.25 12.75v8.25" />
                     </svg>
                     Konsep Dasar Kepailitan
                 </h2>
@@ -235,9 +253,7 @@
         <section id="alur-proses" class="content-section">
             <div class="bg-white p-6 md:p-8 rounded-xl shadow-xl">
                 <h2 class="text-2xl md:text-3xl font-semibold mb-6 text-indigo-700 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 mr-3 text-indigo-500">
-                       <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h12A2.25 2.25 0 0020.25 14.25V3m-16.5 0h16.5m-16.5 0H3.75m0 0V3m12.75 0v11.25A2.25 2.25 0 0114.25 16.5h-6A2.25 2.25 0 016 14.25V3m7.5 0V3m0 0h.008v.008H13.5V3zm-3.75 0v.008h.008v-.008H9.75V3z" />
-                    </svg>
+                     <svg class="hukum-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.286-1.047a2.25 2.25 0 00-2.091-3.758l-.998.062M3.75 4.97l2.286-1.047a2.25 2.25 0 012.091-3.758l.998.062m-3.286 3.696A48.603 48.603 0 0112 4.5c2.291 0 4.545.16 6.75.47m-13.5 0c-1.01.143-2.01.317-3 .52m3-.52l-2.286-1.047a2.25 2.25 0 00-2.091-3.758l-.998.062M15 7.5h3l-1.5 1.5-1.5-1.5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6h19.5M5.25 6h13.5M9 7.5h6l-1.5 1.5-1.5-1.5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12.75h16.5m-16.5 0A2.25 2.25 0 016 10.5h12a2.25 2.25 0 012.25 2.25m-16.5 0V21m16.5-8.25V21m0 0A2.25 2.25 0 0118 23.25H6a2.25 2.25 0 01-2.25-2.25M15.75 12.75v8.25M8.25 12.75v8.25" /></svg>
                     Alur Proses Utama Kepailitan
                 </h2>
                 <p class="mb-8 text-lg text-slate-600">Proses kepailitan melibatkan serangkaian tahapan yang terstruktur. Klik pada setiap tahapan di bawah untuk melihat detail prosedur yang terkait.</p>
@@ -555,9 +571,7 @@
         <section id="para-pihak" class="content-section">
             <div class="bg-white p-6 md:p-8 rounded-xl shadow-xl">
                 <h2 class="text-2xl md:text-3xl font-semibold mb-6 text-indigo-700 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 mr-3 text-indigo-500">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72m.941 3.196a9.094 9.094 0 003.742.479m-12 0a9.094 9.094 0 013.742-.479m5.963 1.584A11.965 11.965 0 0112 21c2.17 0 4.207-.576 5.963-1.584m-11.926 0A5.971 5.971 0 0112 15.75c1.548 0 3.005.496 4.207 1.368m-8.414 0L7.05 15.75A5.982 5.982 0 016 18.72m0 0c0 .225.012.447.037.666l.001.031c0 .225-.012.447-.037.666M6 18.72A3 3 0 006 21m0 0c0 .225.012.447.037.666" />
-                    </svg>
+                    <svg class="hukum-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.286-1.047a2.25 2.25 0 00-2.091-3.758l-.998.062M3.75 4.97l2.286-1.047a2.25 2.25 0 012.091-3.758l.998.062m-3.286 3.696A48.603 48.603 0 0112 4.5c2.291 0 4.545.16 6.75.47m-13.5 0c-1.01.143-2.01.317-3 .52m3-.52l-2.286-1.047a2.25 2.25 0 00-2.091-3.758l-.998.062M15 7.5h3l-1.5 1.5-1.5-1.5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6h19.5M5.25 6h13.5M9 7.5h6l-1.5 1.5-1.5-1.5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12.75h16.5m-16.5 0A2.25 2.25 0 016 10.5h12a2.25 2.25 0 012.25 2.25m-16.5 0V21m16.5-8.25V21m0 0A2.25 2.25 0 0118 23.25H6a2.25 2.25 0 01-2.25-2.25M15.75 12.75v8.25M8.25 12.75v8.25" /></svg>
                     Para Pihak Utama dalam Kepailitan
                 </h2>
                 <p class="mb-8 text-lg text-slate-600">Proses kepailitan melibatkan berbagai pihak dengan peran dan kepentingan masing-masing. Berikut adalah penjelasan mengenai pihak-pihak kunci:</p>
@@ -652,9 +666,7 @@
         <section id="kepailitan-vs-pkpu" class="content-section">
             <div class="bg-white p-6 md:p-8 rounded-xl shadow-xl">
                 <h2 class="text-2xl md:text-3xl font-semibold mb-6 text-indigo-700 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 mr-3 text-indigo-500">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h18M16.5 3L21 7.5m0 0L16.5 12M21 7.5H3" />
-                    </svg>
+                    <svg class="hukum-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.286-1.047a2.25 2.25 0 00-2.091-3.758l-.998.062M3.75 4.97l2.286-1.047a2.25 2.25 0 012.091-3.758l.998.062m-3.286 3.696A48.603 48.603 0 0112 4.5c2.291 0 4.545.16 6.75.47m-13.5 0c-1.01.143-2.01.317-3 .52m3-.52l-2.286-1.047a2.25 2.25 0 00-2.091-3.758l-.998.062M15 7.5h3l-1.5 1.5-1.5-1.5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6h19.5M5.25 6h13.5M9 7.5h6l-1.5 1.5-1.5-1.5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12.75h16.5m-16.5 0A2.25 2.25 0 016 10.5h12a2.25 2.25 0 012.25 2.25m-16.5 0V21m16.5-8.25V21m0 0A2.25 2.25 0 0118 23.25H6a2.25 2.25 0 01-2.25-2.25M15.75 12.75v8.25M8.25 12.75v8.25" /></svg>
                     Kepailitan vs PKPU
                 </h2>
                 <p class="mb-8 text-lg text-slate-600">UU No. 37 Tahun 2004 mengatur dua mekanisme utama: Kepailitan dan Penundaan Kewajiban Pembayaran Utang (PKPU). Keduanya berbeda fundamental dalam tujuan dan prosesnya. Berikut perbandingannya:</p>
@@ -713,9 +725,7 @@
         <section id="upaya-hukum" class="content-section">
             <div class="bg-white p-6 md:p-8 rounded-xl shadow-xl">
                 <h2 class="text-2xl md:text-3xl font-semibold mb-6 text-indigo-700 flex items-center">
-                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 mr-3 text-indigo-500">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
-                    </svg>
+                    <svg class="hukum-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.286-1.047a2.25 2.25 0 00-2.091-3.758l-.998.062M3.75 4.97l2.286-1.047a2.25 2.25 0 012.091-3.758l.998.062m-3.286 3.696A48.603 48.603 0 0112 4.5c2.291 0 4.545.16 6.75.47m-13.5 0c-1.01.143-2.01.317-3 .52m3-.52l-2.286-1.047a2.25 2.25 0 00-2.091-3.758l-.998.062M15 7.5h3l-1.5 1.5-1.5-1.5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6h19.5M5.25 6h13.5M9 7.5h6l-1.5 1.5-1.5-1.5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12.75h16.5m-16.5 0A2.25 2.25 0 016 10.5h12a2.25 2.25 0 012.25 2.25m-16.5 0V21m16.5-8.25V21m0 0A2.25 2.25 0 0118 23.25H6a2.25 2.25 0 01-2.25-2.25M15.75 12.75v8.25M8.25 12.75v8.25" /></svg>
                     Upaya Hukum
                 </h2>
                 <p class="mb-8 text-lg text-slate-600">UU Kepailitan dan PKPU menyediakan mekanisme upaya hukum terhadap putusan tertentu dari Pengadilan Niaga. Upaya hukum utama adalah kasasi dan peninjauan kembali (PK) ke Mahkamah Agung.</p>
@@ -781,9 +791,7 @@
         <section id="isu-kontemporer" class="content-section">
             <div class="bg-white p-6 md:p-8 rounded-xl shadow-xl">
                 <h2 class="text-2xl md:text-3xl font-semibold mb-6 text-indigo-700 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 mr-3 text-indigo-500">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
-                    </svg>
+                    <svg class="hukum-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.286-1.047a2.25 2.25 0 00-2.091-3.758l-.998.062M3.75 4.97l2.286-1.047a2.25 2.25 0 012.091-3.758l.998.062m-3.286 3.696A48.603 48.603 0 0112 4.5c2.291 0 4.545.16 6.75.47m-13.5 0c-1.01.143-2.01.317-3 .52m3-.52l-2.286-1.047a2.25 2.25 0 00-2.091-3.758l-.998.062M15 7.5h3l-1.5 1.5-1.5-1.5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6h19.5M5.25 6h13.5M9 7.5h6l-1.5 1.5-1.5-1.5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12.75h16.5m-16.5 0A2.25 2.25 0 016 10.5h12a2.25 2.25 0 012.25 2.25m-16.5 0V21m16.5-8.25V21m0 0A2.25 2.25 0 0118 23.25H6a2.25 2.25 0 01-2.25-2.25M15.75 12.75v8.25M8.25 12.75v8.25" /></svg>
                     Isu Kontemporer & Arah Pengembangan
                 </h2>
                 <p class="mb-8 text-lg text-slate-600">Hukum kepailitan Indonesia terus berkembang dan menghadapi berbagai tantangan implementasi. Bagian ini membahas isu-isu terkini dan wacana pengembangannya.</p>
@@ -873,8 +881,7 @@
         </section>
     </main>
 
-    <footer class="bg-slate-800 text-slate-300 text-center p-8 mt-12">
-        <p class="text-sm mb-3">&copy; 2025 Prosedur Kepailitan Interaktif.</p>
+    <footer class="bg-slate-800 text-slate-300 text-center p-8 mt-auto"> <p class="text-sm mb-3">&copy; 2025 Prosedur Kepailitan Interaktif.</p>
         <p class="text-sm mb-5">Dibuat oleh Kelompok 8 Hukum Kepailitan IH-B:</p>
         <ul class="text-xs space-y-1.5 text-slate-400">
             <li>MUHAMMAD ROYKHAN DWI PUTRA (22103040163)</li>
@@ -924,13 +931,12 @@
                 mobileMenu.classList.add('hidden');
             }
             
-            // Scroll to top of content, not entire page, unless it's the Beranda
             if (targetId !== 'beranda' || isMobileClick) {
                  const headerHeight = document.querySelector('header').offsetHeight;
                  const targetElement = document.getElementById(targetId);
                  if(targetElement) {
                     const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
-                    const offsetPosition = elementPosition - headerHeight - 20; // 20px buffer
+                    const offsetPosition = elementPosition - headerHeight - 20; 
                     window.scrollTo({
                         top: offsetPosition,
                         behavior: 'smooth'
@@ -953,7 +959,7 @@
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const targetId = link.dataset.target;
-                setActiveSection(targetId, true); // Pass true for mobile click
+                setActiveSection(targetId, true); 
             });
         });
 
@@ -962,7 +968,6 @@
             mobileMenu.classList.toggle('block');
         });
         
-        // Alur Proses interactivity
         const prosesCards = document.querySelectorAll('.proses-card');
         const subContentSections = document.querySelectorAll('.sub-content-section');
 
@@ -971,11 +976,9 @@
                 const subTargetId = card.dataset.subtarget;
                 const targetSubSection = document.getElementById(subTargetId);
 
-                // Close all other sub-sections within the same main "alur-proses" section
                 subContentSections.forEach(subSection => {
                     if (subSection.id !== subTargetId && subSection.closest('#alur-proses')) {
                          subSection.classList.remove('active');
-                         // Reset accordion states within the closed sub-section
                          subSection.querySelectorAll('.accordion-item.active').forEach(openItem => {
                             openItem.classList.remove('active');
                             const icon = openItem.querySelector('.accordion-header svg');
@@ -990,17 +993,15 @@
             });
         });
 
-        // Accordion interactivity
         const accordionItems = document.querySelectorAll('.accordion-item');
         accordionItems.forEach(item => {
             const header = item.querySelector('.accordion-header');
             const icon = header.querySelector('svg');
 
             header.addEventListener('click', () => {
-                const parent = item.parentElement; // Could be .space-y-3 or other direct parent
+                const parent = item.parentElement; 
                 const currentlyActive = item.classList.contains('active');
 
-                // Close other open accordions within the same parent group
                 parent.querySelectorAll('.accordion-item').forEach(openItem => {
                     if (openItem !== item && openItem.classList.contains('active')) {
                         openItem.classList.remove('active');
@@ -1009,7 +1010,6 @@
                     }
                 });
                 
-                // Toggle current accordion
                 item.classList.toggle('active');
                 if (icon) {
                     if (item.classList.contains('active')) {
@@ -1021,7 +1021,6 @@
             });
         });
 
-        // Back to Top Button
         const backToTopBtn = document.getElementById('backToTopBtn');
         window.onscroll = function() {
             if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
@@ -1036,32 +1035,31 @@
             window.scrollTo({top: 0, behavior: 'smooth'});
         });
 
-        // Chart.js - Jangka Waktu Kunci
         const ctx = document.getElementById('jangkaWaktuChart');
         if (ctx) {
             new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: [
-                        'Permohonan s.d. Putusan PN', // Maks. 60 hari
-                        'Putusan Kasasi MA (Pailit)', // Maks. 60 hari
-                        'Eksekusi Kreditor Separatis', // Maks. 60 hari (2 bln)
-                        'Stay Eksekusi Separatis', // Maks. 90 hari
-                        'Batas Tagihan & Verifikasi', // Maks. 14 hari
-                        'Pengajuan Kasasi (Pailit)', // Maks. 8 hari
-                        'Pengumuman Putusan (Kurator)' // Maks. 5 hari
+                        'Permohonan s.d. Putusan PN', 
+                        'Putusan Kasasi MA (Pailit)', 
+                        'Eksekusi Kreditor Separatis', 
+                        'Stay Eksekusi Separatis', 
+                        'Batas Tagihan & Verifikasi', 
+                        'Pengajuan Kasasi (Pailit)', 
+                        'Pengumuman Putusan (Kurator)' 
                     ],
                     datasets: [{
                         label: 'Jumlah Hari (Maksimal)',
                         data: [60, 60, 60, 90, 14, 8, 5],
                         backgroundColor: [
-                            'rgba(79, 70, 229, 0.7)', // indigo
-                            'rgba(107, 33, 168, 0.7)', // purple
-                            'rgba(20, 184, 166, 0.7)', // teal
-                            'rgba(217, 119, 6, 0.7)', // amber
-                            'rgba(6, 182, 212, 0.7)', // sky
-                            'rgba(225, 29, 72, 0.7)', // rose
-                            'rgba(124, 58, 237, 0.7)' // violet
+                            'rgba(79, 70, 229, 0.7)', 
+                            'rgba(107, 33, 168, 0.7)', 
+                            'rgba(20, 184, 166, 0.7)', 
+                            'rgba(217, 119, 6, 0.7)', 
+                            'rgba(6, 182, 212, 0.7)', 
+                            'rgba(225, 29, 72, 0.7)', 
+                            'rgba(124, 58, 237, 0.7)' 
                         ],
                         borderColor: [
                             'rgba(79, 70, 229, 1)',
@@ -1073,7 +1071,7 @@
                             'rgba(124, 58, 237, 1)'
                         ],
                         borderWidth: 1,
-                        borderRadius: 5, // For rounded bars
+                        borderRadius: 5, 
                     }]
                 },
                 options: {
@@ -1096,7 +1094,7 @@
                     },
                     plugins: {
                         legend: {
-                            display: false // Hiding legend as it's clear from title
+                            display: false 
                         },
                         tooltip: {
                             callbacks: {
@@ -1109,11 +1107,7 @@
                 }
             });
         }
-
-        // Set initial active section
         setActiveSection('beranda');
-
     </script>
-
 </body>
 </html>
