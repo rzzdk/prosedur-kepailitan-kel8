@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeri Gambar Dilindungi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* IE 10+ */
+            user-select: none; /* Standard syntax */
+        }
+        .protected-image-container {
+            position: relative;
+            overflow: hidden; /* Mencegah gambar "diseret" keluar dari kontainer jika ukurannya lebih besar */
+        }
+        .protected-image {
+            display: block;
+            pointer-events: none; /* Mencegah interaksi langsung dengan gambar, termasuk drag */
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+        }
+        /* Menyembunyikan gambar saat mencoba mencetak halaman */
+        @media print {
+            .protected-image {
+                display: none !important;
+            }
+            .print-message {
+                display: block !important;
+                text-align: center;
+                font-size: 1.25rem; /* text-xl */
+                color: #374151; /* gray-700 */
+                margin-top: 2rem; /* mt-8 */
+            }
+        }
+        .print-message {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 antialiased min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="bg-white p-6 sm:p-8 rounded-xl shadow-xl w-full max-w-3xl">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-indigo-600">Galeri Gambar Kami</h1>
+            <p class="text-gray-600 mt-2">Gambar-gambar ini ditampilkan untuk dilihat saja dan tidak untuk diunduh.</p>
+        </header>
+
+        <main>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="protected-image-container">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-2 text-center">Gambar 1</h2>
+                    <img src="1.jpg"
+                         alt="Gambar Ilustrasi 1"
+                         class="protected-image mx-auto"
+                         id="image1"
+                         onerror="this.onerror=null; this.src='https://placehold.co/600x400/CCCCCC/FFFFFF?text=Gambar+1+Tidak+Tersedia';">
+                    <p class="print-message">Gambar 1 tidak dapat dicetak.</p>
+                </div>
+
+                <div class="protected-image-container">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-2 text-center">Gambar 2</h2>
+                    <img src="2.jpg"
+                         alt="Gambar Ilustrasi 2"
+                         class="protected-image mx-auto"
+                         id="image2"
+                         onerror="this.onerror=null; this.src='https://placehold.co/600x400/CCCCCC/FFFFFF?text=Gambar+2+Tidak+Tersedia';">
+                    <p class="print-message">Gambar 2 tidak dapat dicetak.</p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="mt-10 text-center text-sm text-gray-500">
+            <p>&copy; <span id="current-year"></span> Website Anda. Semua hak dilindungi.</p>
+            <p class="mt-1">Konten di halaman ini dilindungi.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Menangani event klik kanan
+        document.addEventListener('contextmenu', function(e) {
+            // Memeriksa apakah target adalah salah satu gambar yang dilindungi atau kontainernya
+            if (e.target.classList.contains('protected-image') || e.target.classList.contains('protected-image-container')) {
+                e.preventDefault(); // Mencegah menu konteks muncul
+                // Anda bisa menambahkan pesan peringatan di sini jika diinginkan
+                // Misalnya: showCustomAlert("Mengunduh gambar tidak diizinkan.");
+            }
+        });
+
+        // Mencegah drag and drop pada gambar (sudah ditangani sebagian oleh pointer-events: none; di CSS)
+        // Tambahan ini untuk browser yang mungkin masih mengizinkan drag pada elemen parent
+        const images = document.querySelectorAll('.protected-image');
+        images.forEach(img => {
+            img.addEventListener('dragstart', (e) => {
+                e.preventDefault(); // Mencegah gambar diseret
+            });
+        });
+        
+        // Mencegah keyboard shortcuts untuk menyimpan (Ctrl+S / Cmd+S)
+        // Ini akan memblokir penyimpanan seluruh halaman, jadi gunakan dengan hati-hati.
+        // Jika Anda hanya ingin melindungi gambar, ini mungkin terlalu agresif.
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                // Anda bisa menambahkan pesan peringatan di sini
+                // Misalnya: showCustomAlert("Menyimpan halaman tidak diizinkan.");
+            }
+        });
+
+        // Update tahun di footer
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // Fungsi untuk menampilkan pesan custom (opsional, sebagai pengganti alert())
+        // function showCustomAlert(message) {
+        //     const alertBox = document.createElement('div');
+        //     alertBox.style.position = 'fixed';
+        //     alertBox.style.top = '20px';
+        //     alertBox.style.left = '50%';
+        //     alertBox.style.transform = 'translateX(-50%)';
+        //     alertBox.style.padding = '10px 20px';
+        //     alertBox.style.backgroundColor = '#f8d7da'; // Warna merah muda untuk peringatan
+        //     alertBox.style.color = '#721c24'; // Warna teks gelap
+        //     alertBox.style.border = '1px solid #f5c6cb';
+        //     alertBox.style.borderRadius = '0.25rem';
+        //     alertBox.style.zIndex = '1000';
+        //     alertBox.textContent = message;
+        //     document.body.appendChild(alertBox);
+        //     setTimeout(() => {
+        //         alertBox.remove();
+        //     }, 3000); // Hapus pesan setelah 3 detik
+        // }
+    </script>
+
+</body>
+</html>
